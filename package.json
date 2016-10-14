@@ -1,0 +1,25 @@
+{
+  "name": "vndb.js",
+  "version": "0.0.1",
+  "description": "A Node.js library for accessing the VNDB.org database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arbauman/vndb.js.git"
+  },
+  "keywords": [
+    "VNDB",
+    "Visual",
+    "Novel",
+    "Database"
+  ],
+  "author": "Alex Bauman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arbauman/vndb.js/issues"
+  },
+  "homepage": "https://github.com/arbauman/vndb.js#readme"
+}
