@@ -4,45 +4,59 @@ var version = require('./package.json').version
 var connected = false;
 var logged = false;
 
-function getVN (title) {
-    if (connected === false) {
-        connect();
+module.exports = {
+    searchVN: (title) => {
+        return new Promise( (resolve, reject) => {
+            createListeners();
+            if (connected === false) {
+                connect();
+            }
+            if (logged === false) {
+                login();
+            }
+            var chunk = "";
+            client.on('data', (data) => {
+                chunk += data.toString();
+                let extracted = chunk.substring(0, chunk.indexOf("\x04"));
+                chunk = chunk.replace(`${extracted}\x04`, ""); //remove extracted string from chunk
+                if (extracted === "ok") {
+                    console.log("Login Successful")
+                } else {
+                    let command = extracted.substring(0, extracted.indexOf(" "));
+                    extracted = extracted.replace(`${command} `, "");
+                    output = JSON.parse(extracted).items;
+                    console.log(output);
+                    client.removeAllListeners('data');
+                    return resolve(output)
+                }
+            });
+            sendMessage(`get vn basic (search ~ "${title}")`);
+        })
     }
-    if (logged === false) {
-        login();
-    }
-    sendMessage(`get vn basic (search ~ "muv luv")`);
 }
 
-getVN("Muv-Luv");
+function createListeners() {
+    client.on('connect', () => {
+        console.log('Connection successful');
+        connected = true;
+        client.setTimeout(60000)
+        client.setEncoding("utf8");
+    })
 
-client.on('connect', () => {
-    console.log('Connection successful');
-    connected = true;
-    client.setTimeout(60000)
-})
+    client.on('error', (error) => {
+        console.log(`ERROR: ${error}`);
+        client.destroy();
+    })
 
-var responses = "";
-client.on('data', (data) => {
-    responses += data.toString();
-    console.log(`DATA: ${responses}`);
-    let first = responses.substring(0, responses.indexOf("\x04"));
-    console.log(first);
-});
+    client.on('close', () => {
+        console.log("Connection closed.");
+    });
 
-client.on('error', (error) => {
-    console.log(`ERROR: ${error}`);
-    client.destroy();
-})
-
-client.on('close', () => {
-    console.log("Connection closed.");
-});
-
-client.on('timeout', () => {
-    connected = false;
-    client.destroy();
-})
+    client.on('timeout', () => {
+        connected = false;
+        client.destroy();
+    })
+}
 
 function sendMessage(message) {
     client.write(`${message}\x04`);
