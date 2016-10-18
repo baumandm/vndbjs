@@ -29,19 +29,13 @@ client.on('timeout', () => {
 });
 
 module.exports = {
-    searchVN: (title) => {
-        return sendMessage(`get vn basic (search ~ "${title}")`);
+    query: (request) => {
+        return sendMessage(request);
     }
 }
 
 function sendMessage(message) {
     return new Promise( (resolve, reject) => {
-        if (connected === false) {
-            connect();
-        }
-        if (logged === false) {
-            login();
-        }
         var chunk = "";
         client.on('data', (data) => {
             chunk += data.toString();
@@ -64,6 +58,13 @@ function sendMessage(message) {
                 return resolve(output)
             }
         });
+        if (connected === false) {
+            connect();
+        }
+        if (logged === false) {
+            login();
+        }
+
         client.write(`${message}\x04`);
     })
 }
@@ -73,5 +74,5 @@ function connect() {
 }
 
 function login() {
-    client.write(`login {"protocol":1,"client":"vndbnodejslib","clientver":"${version}"}\x04`)
+    client.write(`login {"protocol":1,"client":"vndbjs","clientver":"${version}"}\x04`)
 }
