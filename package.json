@@ -4,7 +4,7 @@
   "description": "A Node.js library for accessing the VNDB.org database.",
   "main": "vndb.js",
   "scripts": {
-  	"start": "node vndb.js"
+  	"start": "node vndb.js",
     "test": "echo \"No test\""
   },
   "repository": {
