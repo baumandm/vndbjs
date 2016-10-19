@@ -39,11 +39,9 @@ function sendMessage(message) {
         var chunk = "";
         client.on('data', (data) => {
             chunk += data.toString();
-
             if (data.indexOf("\x04") === -1) {
                 return;
             }
-
             let extracted = chunk.substring(0, chunk.indexOf("\x04"));
             chunk = "";
             if (extracted === "ok") {
