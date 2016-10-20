@@ -3,6 +3,7 @@
 [![npm version](https://badge.fury.io/js/vndbjs.svg)](https://badge.fury.io/js/vndbjs)
 [![Build Status](https://travis-ci.org/arbauman/vndbjs.svg?branch=master)](https://travis-ci.org/arbauman/vndbjs)
 [![Code Climate](https://codeclimate.com/github/arbauman/vndbjs/badges/gpa.svg)](https://codeclimate.com/github/arbauman/vndbjs)
+[![Test Coverage](https://codeclimate.com/github/arbauman/vndbjs/badges/coverage.svg)](https://codeclimate.com/github/arbauman/vndbjs/coverage)
 
 [![NPM](https://nodei.co/npm/vndbjs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/vndbjs/)
 
