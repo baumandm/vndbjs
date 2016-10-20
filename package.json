@@ -1,6 +1,6 @@
 {
   "name": "vndbjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A Node.js library for accessing the VNDB.org database.",
   "main": "vndb.js",
   "scripts": {
