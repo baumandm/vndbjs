@@ -10,8 +10,12 @@ node_js:
     - "6.7"
 before_install:
     - npm install -g mocha
+    - npm install -g codeclimate-test-reporter
+    - npm install -g istanbul
 install:
     - npm install
+after_install:
+    - istanbul cover _mocha -- -R spec
 addons:
     code_climate:
         repo_token: 8dc6338ca2465cb4a65e2975f8910cb8f1c98e0d931cf1f01c5c0ee54f2f5ac0
