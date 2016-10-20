@@ -1,25 +1,32 @@
-![vndb.js](http://i.imgur.com/ujZTxlz.png)
+![vndbjs](http://i.imgur.com/ujZTxlz.png)
 
-[![npm version](https://badge.fury.io/js/vndb.js.svg)](https://badge.fury.io/js/vndb.js)
+[![npm version](https://badge.fury.io/js/vndbjs.svg)](https://badge.fury.io/js/vndbjs)
+[![Code Climate](https://codeclimate.com/github/arbauman/vndbjs/badges/gpa.svg)](https://codeclimate.com/github/arbauman/vndbjs)
 
-A Node.js library for accessing the VNDB.org TCP database.
+[![NPM](https://nodei.co/npm/vndbjs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/vndbjs/)
 
-This library serves as a middle man for node modules wishing to connect with the VNDB database.  The library's API will return results from the database as JSON objects for convenient use in your software.
+A Node.js library for accessing the VNDB.org database.
 
-Current implementation provides a minimal API, requiring the user to send correctly formatted string queries, as described in the [VNDB.org documentation](https://vndb.org/d11).  This may change in the future.
+vndbjs currently does not support logging in to the database with a VNDB account.  This functionality is required for making changes to the database.  This functionality may be included at a later date, but is not planned at the moment.
 
-Vndb.js currently does not support the functionality of logging in to the database with a VNDB account.  This functionality is required for various SET tasks.  This functionality may be included at a later date, but is not planned at the moment.
+## Features
+* Takes care of connecting and logging in.  
+* All queries are returned as a Promise.
+* Database results are returned as JSON objects for easy parsing.
 
-## Installation ##
+## Getting Started
+`npm install --save vndbjs`
 
-```npm install --save vndb.js```
-
-## Example ##
-
+## Documentation
 ```js
-var vndb = require('./index.js');
+var _vndb = require('vndbjs');
+var vndb = new _vndb("<client name>");
 
-vndb.query(`get vn basic,details,stats (title = "Muv-Luv")`).then( (output) => { //output is a JSON object of database data
-    console.log(output);
+vndb.query(`get vn basic,details,stats (title = "Muv-Luv")`).then( (output) => {
+    console.log(output); // Output is a JSON object of database data
+    console.log(output.title) // "Muv-Luv"
+    console.log(output.original) // "マブラヴ"
 });
 ```
+## License
+vndbjs is licensed under the [MIT](license) license.  This library is not associated with VNDB.org

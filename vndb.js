@@ -1,70 +1,72 @@
 var net = require('net');
-var client = new net.Socket();
 var version = require('./package.json').version
-var connected = false;
-var logged = false;
+var client = new net.Socket();
 
-client.on('connect', () => {
-    console.log('Connection successful');
-    connected = true;
-    client.setTimeout(60000)
-    client.setEncoding("utf8");
-})
+class Api {
+    constructor(clientName) {
+        this.clientName = clientName;
+        startListeners();
+        this.connected = false;
+        this.logged = false;
+    }
 
-client.on('error', (error) => {
-    console.log(`ERROR: ${error}`);
-    client.destroy();
-})
-
-client.on('close', () => {
-    console.log("Connection closed.");
-    connected = false;
-    logged = false;
-});
-
-client.on('timeout', () => {
-    connected = false;
-    logged = false;
-    client.destroy();
-});
-
-module.exports = {
-    query: (request) => {
-        return sendMessage(request);
+    query(message) {
+        return new Promise( (resolve, reject) => {
+            var chunk = "";
+            client.on('data', (data) => {
+                chunk += data.toString();
+                if (data.indexOf("\x04") === -1) {
+                    return;
+                }
+                let extracted = chunk.substring(0, chunk.indexOf("\x04"));
+                chunk = "";
+                if (extracted === "ok") {
+                    console.log("Login Successful")
+                    this.logged = true;
+                } else {
+                    let command = extracted.substring(0, extracted.indexOf(" "));
+                    extracted = extracted.replace(`${command} `, "");
+                    let output = JSON.parse(extracted).items;
+                    console.log(output);
+                    client.removeAllListeners('data');
+                    return resolve(output)
+                }
+            });
+            if (this.connected === false) {
+                connect();
+            }
+            if (this.logged === false) {
+                login();
+            }
+            client.write(`${message}\x04`);
+        })
     }
 }
 
-function sendMessage(message) {
-    return new Promise( (resolve, reject) => {
-        var chunk = "";
-        client.on('data', (data) => {
-            chunk += data.toString();
-            if (data.indexOf("\x04") === -1) {
-                return;
-            }
-            let extracted = chunk.substring(0, chunk.indexOf("\x04"));
-            chunk = "";
-            if (extracted === "ok") {
-                console.log("Login Successful")
-                logged = true;
-            } else {
-                let command = extracted.substring(0, extracted.indexOf(" "));
-                extracted = extracted.replace(`${command} `, "");
-                output = JSON.parse(extracted).items;
-                console.log(output);
-                client.removeAllListeners('data');
-                return resolve(output)
-            }
-        });
-        if (connected === false) {
-            connect();
-        }
-        if (logged === false) {
-            login();
-        }
+function startListeners() {
+    client.on('connect', () => {
+        console.log('Connection successful');
+        this.connected = true;
+        client.setTimeout(60000)
+        client.setEncoding("utf8");
+    });
 
-        client.write(`${message}\x04`);
-    })
+    client.on('error', (error) => {
+        console.log(`ERROR: ${error}`);
+        client.destroy();
+    });
+
+    client.on('close', () => {
+        console.log("Connection closed.");
+        this.connected = false;
+        this.logged = false;
+    });
+
+    client.on('timeout', () => {
+        this.connected = false;
+        this.logged = false;
+        client.destroy();
+    });
 }
 
 function connect() {
@@ -74,3 +76,5 @@ function connect() {
 function login() {
     client.write(`login {"protocol":1,"client":"vndbjs","clientver":"${version}"}\x04`)
 }
+
+module.exports = Api;

@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+    - "6"
+    - "6.1"
+    - "6.2"
+    - "6.3"
+    - "6.4"
+    - "6.5"
+    - "6.6"
+    - "6.7"
+before_install:
+    - npm install -g mocha
+install:
+    - npm install
+addons:
+    code_climate:
+        repo_token: 8dc6338ca2465cb4a65e2975f8910cb8f1c98e0d931cf1f01c5c0ee54f2f5ac0
