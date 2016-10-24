@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-    - "4.6.1"
     - "6"
     - "6.9.1"
 before_install:
@@ -15,4 +14,6 @@ after_success:
     - CODECLIMATE_REPO_TOKEN=$CLIMATE codeclimate-test-reporter < coverage/lcov.info
 addons:
     code_climate:
-        repo_token: CLIMATE
+        repo_token: $CLIMATE
+notifications:
+    webhooks: https://discordapp.com/api/webhooks/240090136946147329/6BdpulYJ4YjB9TA2MH3VlIv3DEr-sUHEYQRPXa2whlPs_DTvh29OAjnT3GdiosWVdoFF
