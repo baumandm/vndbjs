@@ -17,13 +17,6 @@ describe("vndb.query", function() {
             //console.log(reject);
         })
     })
-    it("Should fail and return 'invalid query'", function() {
-        vndb.query(false).then( function(resolve) {
-        }, function(reject) {
-            reject.should.be.a('string');
-            reject.should.equal('Invalid query.');
-        });
-    })
 });
 
 describe("vndb.get", function() {
