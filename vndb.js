@@ -1,5 +1,5 @@
 var net = require('net');
-var version = require('./package.json').version
+var version = require('./package.json').version;
 var shortid = require('shortid');
 var Pool = require('generic-pool').Pool;
 
@@ -11,11 +11,11 @@ class Api {
             name     : "vndb",
             create   : function(callback) {
                 var client = new net.Socket();
-                connect(client).then( (result) => {
-                    login(client).then( (result) => {
+                connect(client).then( () => {
+                    login(client).then( () => {
                         callback(null, client);
                     }, (err) => {
-                        console.log("Login failed");
+                        console.log("Login failed" + err);
                     })
                 }, (err) => {
                     console.log("Connection Failed" + err);
@@ -72,7 +72,7 @@ class Api {
                             return;
                         }
                         let response = chunk.substring(0, chunk.indexOf("\x04"));
-                        chunk = chunk.replace(`${response}\x04`, "")
+                        chunk = chunk.replace(`${response}\x04`, "");
                         let command = response.substring(0, response.indexOf(" "));
                         let json = response.replace(`${command} `, "");
                         let output = JSON.parse(json);
@@ -82,21 +82,21 @@ class Api {
                             return reject(response);
                         } else if (command === "results" || command === "dbstats") {
                             this.pool.release(client);
-                            return resolve(output)
+                            return resolve(output);
                         }
                     });
                     client.write(`${message}\x04`);
                 }
             });
-        })
+        });
     }
 }
 
 function parseArgs(args) {
-    var type = args.hasOwnProperty("type") ? args.type : false
+    var type = args.hasOwnProperty("type") ? args.type : false;
     var flags = args.hasOwnProperty("flags") ? args.flags : ["basic", "details", "stats"];
     var filter = args.hasOwnProperty("filter") ? args.filter : false;
-    if (type === false || filter === false) { return false};
+    if (type === false || filter === false) { return false}
     return `${args.type} ${flags.join(',')} (${filter.type} ${filter.oper} ${filter.value})`
 }
 
@@ -115,9 +115,9 @@ function login(client) {
             client.removeAllListeners('error');
             client.removeAllListeners('data');
             return resolve();
-        })
+        });
         client.write(`login {"protocol":1,"client":"${this.clientName}-${shortid.generate()}","clientver":"${version}"}\x04`)
-    })
+    });
 }
 
 function connect(client) {
@@ -132,9 +132,9 @@ function connect(client) {
             client.removeAllListeners('error');
             client.removeAllListeners('connect');
             return resolve();
-        })
+        });
         client.connect(19534, "api.vndb.org");
-    })
+    });
 }
 
 module.exports = Api;

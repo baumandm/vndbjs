@@ -10,14 +10,14 @@ describe("query", function() {
             resolve.should.have.property('users');
             resolve.should.have.length(9);
         });
-    })
+    });
     it("Should fail and do stuff", function() {
         vndb.query("get vn fd").then( function(resolve) {
         }, function(reject) {
             reject.should.be.a('string');
             reject.should.equal('error');
-        })
-    })
+        });
+    });
 });
 
 describe("get", function() {
@@ -28,15 +28,15 @@ describe("get", function() {
             resolve.should.have.property('description');
             resolve.should.have.property('rating');
         });
-    })
+    });
     it("Should fail and return 'invalid query'", function() {
         vndb.get({}).then( function(resolve) {
         }, function(reject) {
             reject.should.be.a('string');
             reject.should.equal('Invalid query.');
         });
-    })
-})
+    });
+});
 
 describe("stats", function() {
     it("Should succeed and return JSON", function() {
@@ -45,9 +45,9 @@ describe("stats", function() {
             resolve.should.have.property('users');
             resolve.should.have.property('vn');
             resolve.should.have.property('chars');
-        })
-    })
-})
+        });
+    });
+});
 
 describe("searchVnList", function() {
     it("Should succeed and return JSON", function() {
@@ -57,9 +57,9 @@ describe("searchVnList", function() {
             resolve.should.have.property('more');
             resolve.should.have.property('items');
             resolve.items[0].should.have.property('title');
-        })
-    })
-})
+        });
+    });
+});
 
 describe("getVnByTitleFull", function() {
     it("Should succeed and return JSON", function() {
@@ -68,9 +68,9 @@ describe("getVnByTitleFull", function() {
             resolve.should.have.property('tags');
             resolve.should.have.property('relations');
             resolve.should.have.property('anime');
-        })
-    })
-})
+        });
+    });
+});
 
 describe("getVnByTitle", function() {
     it("Should succeed and return JSON", function() {
@@ -79,10 +79,10 @@ describe("getVnByTitle", function() {
             resolve.should.have.property('image');
             resolve.should.have.property('rating');
             resolve.should.have.property('length');
-        })
-    })
+        });
+    });
 })
-
+;
 describe("getVnByIdFull", function() {
     it("Should succeed and return JSON", function() {
         vndb.getVnByIdFull(17).then( function(resolve) {
@@ -90,9 +90,9 @@ describe("getVnByIdFull", function() {
             resolve.should.have.property('tags');
             resolve.should.have.property('relations');
             resolve.should.have.property('anime');
-        })
-    })
-})
+        });
+    });
+});
 
 describe("getVnById", function() {
     it("Should succeed and return JSON", function() {
@@ -101,6 +101,6 @@ describe("getVnById", function() {
             resolve.should.have.property('image');
             resolve.should.have.property('rating');
             resolve.should.have.property('length');
-        })
-    })
-})
+        });
+    });
+});
