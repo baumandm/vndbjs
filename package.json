@@ -1,6 +1,6 @@
 {
   "name": "vndbjs",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "A Node.js library for accessing the VNDB.org database.",
   "main": "vndb.js",
   "scripts": {
@@ -27,5 +27,9 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.1.2"
+  },
+  "dependencies": {
+    "generic-pool": "^2.4.3",
+    "shortid": "^2.2.6"
   }
 }

@@ -15,5 +15,3 @@ after_success:
 addons:
     code_climate:
         repo_token: $CLIMATE
-notifications:
-    webhooks: https://discordapp.com/api/webhooks/240090136946147329/6BdpulYJ4YjB9TA2MH3VlIv3DEr-sUHEYQRPXa2whlPs_DTvh29OAjnT3GdiosWVdoFF
