@@ -93,9 +93,9 @@ class Api {
 }
 
 function parseArgs(args) {
-    var type = args.prototype.hasOwnProperty("type") ? args.type : false;
-    var flags = args.prototype.hasOwnProperty("flags") ? args.flags : ["basic", "details", "stats"];
-    var filter = args.prototype.hasOwnProperty("filter") ? args.filter : false;
+    var type = args.hasOwnProperty("type") ? args.type : false;
+    var flags = args.hasOwnProperty("flags") ? args.flags : ["basic", "details", "stats"];
+    var filter = args.hasOwnProperty("filter") ? args.filter : false;
     if (type === false || filter === false) { return false}
     return `${args.type} ${flags.join(',')} (${filter.type} ${filter.oper} ${filter.value})`
 }
