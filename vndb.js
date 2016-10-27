@@ -4,11 +4,11 @@ const shortid = require('shortid');
 const Pool = require('generic-pool').Pool;
 
 function parseArgs(args) {
-  let type = args.hasOwnProperty('type') ? args.type : false;
-  let flags = args.hasOwnProperty('flags') ? args.flags : ['basic', 'details', 'stats'];
-  let filter = args.hasOwnProperty('filter') ? args.filter : false;
-  if (type === false || filter === false) { return false}
-  return `${args.type} ${flags.join(',')} (${filter.type} ${filter.oper} ${filter.value})`
+  const type = args.hasOwnProperty('type') ? args.type : false;
+  const flags = args.hasOwnProperty('flags') ? args.flags : ['basic', 'details', 'stats'];
+  const filter = args.hasOwnProperty('filter') ? args.filter : false;
+  if (type === false || filter === false) { return false; }
+  return `${args.type} ${flags.join(',')} (${filter.type} ${filter.oper} ${filter.value})`;
 }
 
 function login(client) {
@@ -98,7 +98,7 @@ class Api {
   }
 
   get(args) {
-    var message = parseArgs(args);
+    const message = parseArgs(args);
     return this.query(`get ${message}`);
   }
 
