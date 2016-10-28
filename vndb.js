@@ -6,7 +6,7 @@ const defaults = require('defaults-deep');
 
 const defaultOptions = {
   uri: 'api.vndb.org',
-  port: 19524,
+  port: 19534,
   encoding: 'utf8',
   pool: {
     min: 2,
