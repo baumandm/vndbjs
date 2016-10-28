@@ -2,6 +2,19 @@ const net = require('net');
 const version = require('./package.json').version;
 const shortid = require('shortid');
 const Pool = require('generic-pool').Pool;
+const defaults = require('defaults-deep');
+
+const defaultOptions = {
+  uri: 'api.vndb.org',
+  port: 19524,
+  encoding: 'utf8',
+  pool: {
+    min: 2,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    log: false
+  }
+};
 
 function parseArgs(args) {
   const type = args.hasOwnProperty('type') ? args.type : false;
@@ -31,7 +44,7 @@ function login(client) {
   });
 }
 
-function connect(client) {
+function connect(client, options) {
   return new Promise((resolve, reject) => {
     client.on('error', (error) => {
       console.log(`ERROR: ${error}`);
@@ -39,23 +52,25 @@ function connect(client) {
     });
     client.on('connect', () => {
       // console.log('connection successful');
-      client.setEncoding('utf8');
+      client.setEncoding(options.encoding);
       client.removeAllListeners('error');
       client.removeAllListeners('connect');
       return resolve();
     });
-    client.connect(19534, 'api.vndb.org');
+    client.connect(options.port, options.uri);
   });
 }
 
 class Api {
-  constructor(clientName) {
+  constructor(clientName, options = {}) {
+    defaults(options, defaultOptions);
+    this.options = options;
     this.clientName = clientName;
     this.pool = new Pool({
       name: 'vndb',
       create: (callback) => {
         const client = new net.Socket();
-        connect(client).then(() => {
+        connect(client, options).then(() => {
           login(client).then(() => {
             callback(null, client);
           }, (err) => {
@@ -66,10 +81,10 @@ class Api {
         });
       },
       destroy: (client) => { client.destroy(); },
-      max: 10,
-      min: 2,
-      idleTimeoutMillis: 30000,
-      log: false
+      min: options.pool.min,
+      max: options.pool.max,
+      idleTimeoutMillis: options.pool.idleTimoutMillis,
+      log: options.pool.log
     });
   }
 
