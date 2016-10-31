@@ -1,6 +1,6 @@
 var should = require('chai').should();
 var _vndb = require('../vndb.js');
-var vndb = new _vndb("vndbtestprocess", {});
+var vndb = new _vndb("vndbtestprocess");
 
 describe("query", function() {
   this.timeout(5000);
@@ -26,7 +26,7 @@ describe("query", function() {
 
 describe("get", function() {
   it("Should succeed and return details on a VN", function(done) {
-    vndb.get({type:"vn", flags:["basic", "details"], filter:{type:"id", oper:"=", value:"17"}}).then( function(resolve) {
+    vndb.get({type:"vn", flags:["basic", "details"], filter:['id = 17']}).then( function(resolve) {
       resolve.should.be.a('object');
       resolve.should.have.property('items');
       resolve.items.should.have.length(1);
