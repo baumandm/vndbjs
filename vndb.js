@@ -4,13 +4,12 @@ const shortid = require('shortid');
 const Pool = require('generic-pool').Pool;
 const defaults = require('defaults-deep');
 const defaultsShallow = require('defaults-shallow');
-
 const defaultOptions = {
   uri: 'api.vndb.org',
   port: 19534,
   encoding: 'utf8',
   pool: {
-    min: 2,
+    min: 1,
     max: 10,
     idleTimeoutMillis: 30000,
     log: false
