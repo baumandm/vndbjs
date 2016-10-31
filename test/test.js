@@ -26,7 +26,7 @@ describe("query", function() {
 
 describe("get", function() {
   it("Should succeed and return details on a VN", function(done) {
-    vndb.get({type:"vn", flags:["basic", "details"], filter:['id = 17']}).then( function(resolve) {
+    vndb.get({type:"vn", flags:["basic", "details"], filters:['id = 17']}).then( function(resolve) {
       resolve.should.be.a('object');
       resolve.should.have.property('items');
       resolve.items.should.have.length(1);
