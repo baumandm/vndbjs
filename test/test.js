@@ -1,7 +1,6 @@
 var should = require('chai').should();
-
 var _vndb = require('../vndb.js');
-var vndb = new _vndb("vndbtestprocess", {});
+var vndb = new _vndb("vndbtestprocess");
 
 describe("query", function() {
   this.timeout(5000);
@@ -27,7 +26,7 @@ describe("query", function() {
 
 describe("get", function() {
   it("Should succeed and return details on a VN", function(done) {
-    vndb.get({type:"vn", flags:["basic", "details"], filter:{type:"id", oper:"=", value:"17"}}).then( function(resolve) {
+    vndb.get({type:"vn", flags:["basic", "details"], filters:['id = 17']}).then( function(resolve) {
       resolve.should.be.a('object');
       resolve.should.have.property('items');
       resolve.items.should.have.length(1);
@@ -58,89 +57,6 @@ describe("stats", function() {
       resolve.should.have.property('users');
       resolve.should.have.property('vn');
       resolve.should.have.property('chars');
-      done();
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-});
-
-describe("searchVnList", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.searchVnList("muv luv").then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('num');
-      resolve.should.have.property('more');
-      resolve.should.have.property('items');
-      resolve.items[0].should.have.property('title');
-      done();
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-});
-
-describe("getVnByTitleFull", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.getVnByTitleFull("Muv-Luv").then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('items');
-      resolve.items.should.have.length(1);
-      let item = resolve.items[0];
-      item.should.have.property('tags');
-      item.should.have.property('relations');
-      item.should.have.property('anime');
-      done()
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-});
-
-describe("getVnByTitle", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.getVnByTitle("Muv-Luv").then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('items');
-      resolve.items.should.have.length(1);
-      let item = resolve.items[0];
-      item.should.have.property('image');
-      item.should.have.property('rating');
-      item.should.have.property('length');
-      done();
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-});
-
-describe("getVnByIdFull", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.getVnByIdFull(17).then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('items');
-      resolve.items.should.have.length(1);
-      let item = resolve.items[0];
-      item.should.have.property('tags');
-      item.should.have.property('relations');
-      item.should.have.property('anime');
-      done();
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-});
-
-describe("getVnById", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.getVnById(17).then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('items');
-      resolve.items.should.have.length(1);
-      let item = resolve.items[0];
-      item.should.have.property('image');
-      item.should.have.property('rating');
-      item.should.have.property('length');
       done();
     }).catch(function(error) {
       done(error);
