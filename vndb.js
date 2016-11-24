@@ -65,7 +65,7 @@ class Api {
       if (message === 'get false') {reject('Missing args');}
       this.pool.acquire((err, client) => {
         if (err) {
-          console.log(`ERROR: ${err}`);
+          console.log(`VNDBJS: ${err}`);
         } else {
           let chunk = '';
           client.on('data', (data) => {
@@ -107,14 +107,13 @@ function parseArgs(args) {
 function login(client) {
   return new Promise((resolve, reject) => {
     client.on('error', (error) => {
-      console.log(`ERROR: ${error}`);
+      console.log(`VNDBJS: ${error}`);
     });
     client.on('data', (data) => {
       let chunk = '';
       chunk += data.toString();
       const response = chunk.substring(0, chunk.indexOf('\x04'));
       if (response === 'ok') {
-        // console.log('Logged in to VNDB')
       }
       client.removeAllListeners('error');
       client.removeAllListeners('data');
@@ -127,7 +126,7 @@ function login(client) {
 function connect(client, options) {
   return new Promise((resolve, reject) => {
     client.on('error', (error) => {
-      console.log(`ERROR: ${error}`);
+      console.log(`VNDBJS: ${error}`);
       return reject();
     });
     client.on('connect', () => {
