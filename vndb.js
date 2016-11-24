@@ -61,7 +61,6 @@ class Api {
 
   query(message) {
     return new Promise((resolve, reject) => {
-      console.log(message);
       if (message === 'get false') {reject('Missing args');}
       this.pool.acquire((err, client) => {
         if (err) {
