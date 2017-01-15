@@ -15,14 +15,58 @@ const defaultOptions = {
     log: false
   }
 };
-
 const defaultInput = {
   type: false,
   flags: ['basic'],
   filters: false,
   options: null
+};
+
+// Helper Functions
+function parseArgs(args) {
+  defaultsShallow(args, defaultInput);
+  if (args.type === false || args.filters === false) {return false;}
+  if (args.options) {
+    return `${args.type} ${args.flags.join(',')} (${args.filters.join(' and ')}) ${JSON.stringify(args.options)}`;
+  }
+  return `${args.type} ${args.flags.join(',')} (${args.filters.join(' and ')})`;
 }
 
+function login(client) {
+  return new Promise((resolve, reject) => {
+    client.on('error', (error) => {
+      return reject(error);
+    });
+    client.on('data', (data) => {
+      let chunk = '';
+      chunk += data.toString();
+      const response = chunk.substring(0, chunk.indexOf('\x04'));
+      if (response === 'ok') {
+        client.removeAllListeners('error');
+        client.removeAllListeners('data');
+        return resolve();
+      }
+    });
+    client.write(`login {"protocol":1,"client":"${this.clientName}-${shortid.generate()}","clientver":"${version}"}\x04`);
+  });
+}
+
+function connect(client, options) {
+  return new Promise((resolve, reject) => {
+    client.on('error', (error) => {
+      return reject(error);
+    });
+    client.on('connect', () => {
+      client.setEncoding(options.encoding);
+      client.removeAllListeners('error');
+      client.removeAllListeners('connect');
+      return resolve();
+    });
+    client.connect(options.port, options.uri);
+  });
+}
+
+// Class
 class Api {
   constructor(clientName, options = {}) {
     defaults(options, defaultOptions);
@@ -36,10 +80,13 @@ class Api {
           login(client).then(() => {
             callback(null, client);
           }, (err) => {
-            console.log(`Login failed: ${err}`);
+            console.log(`vndbjs: Login failed: ${err}`);
+            this.pool.release(client);
           });
         }, (err) => {
-          console.log(`Connection Failed: ${err}`);
+          console.log(`vndbjs: Connection Failed: ${err}`);
+          this.pool.release(client);
+
         });
       },
       destroy: (client) => { client.destroy(); },
@@ -91,52 +138,6 @@ class Api {
       });
     });
   }
-}
-
-function parseArgs(args) {
-  defaultsShallow(args, defaultInput);
-  if (args.type === false || args.filters === false) {return false;}
-  if (args.options) {
-    return `${args.type} ${args.flags.join(',')} (${args.filters.join(' and ')}) ${JSON.stringify(args.options)}`;
-  } else {
-    return `${args.type} ${args.flags.join(',')} (${args.filters.join(' and ')})`;
-  }
-}
-
-function login(client) {
-  return new Promise((resolve, reject) => {
-    client.on('error', (error) => {
-      console.log(`VNDBJS: ${error}`);
-    });
-    client.on('data', (data) => {
-      let chunk = '';
-      chunk += data.toString();
-      const response = chunk.substring(0, chunk.indexOf('\x04'));
-      if (response === 'ok') {
-      }
-      client.removeAllListeners('error');
-      client.removeAllListeners('data');
-      return resolve();
-    });
-    client.write(`login {"protocol":1,"client":"${this.clientName}-${shortid.generate()}","clientver":"${version}"}\x04`);
-  });
-}
-
-function connect(client, options) {
-  return new Promise((resolve, reject) => {
-    client.on('error', (error) => {
-      console.log(`VNDBJS: ${error}`);
-      return reject();
-    });
-    client.on('connect', () => {
-      // console.log('connection successful');
-      client.setEncoding(options.encoding);
-      client.removeAllListeners('error');
-      client.removeAllListeners('connect');
-      return resolve();
-    });
-    client.connect(options.port, options.uri);
-  });
 }
 
 module.exports = Api;
