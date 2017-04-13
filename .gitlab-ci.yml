@@ -1,0 +1,34 @@
+image: node:latest
+
+before_script:
+  - node -v
+  - npm -v
+  - npm install
+
+stages:
+  - test
+  - deploy
+
+coverage:
+  stage: test
+  script:
+    - npm run cover
+  only:
+    - master
+
+lint:
+  stage: test
+  script:
+    - npm run lint
+  only:
+    - master
+
+pages:
+  stage: deploy
+  script:
+    - npm run docs
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
