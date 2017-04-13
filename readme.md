@@ -2,14 +2,13 @@
   <img src="http://i.imgur.com/ujZTxlz.png"/>
 </p>
 <p align="center">
+  <a href="https://gitlab.com/arbauman/startpage"><img src="https://img.shields.io/badge/Developed%20on-GitLab-orange.svg?style=flat-square" alt="Developed on Gitlab"></a>
   <a href="https://www.npmjs.com/package/vndbjs"><img src="https://img.shields.io/npm/v/vndbjs.svg?style=flat-square" alt="npm" /></a>
-  <a href="https://travis-ci.org/arbauman/vndbjs"><img src="https://img.shields.io/travis/arbauman/vndbjs.svg?style=flat-square" alt="Travis" /></a>
-  <a href="https://github.com/arbauman/vndbjs/issues"><img src="https://img.shields.io/github/issues-raw/arbauman/vndbjs.svg?style=flat-square" alt="" /></a>
-  <a href="https://codeclimate.com/github/arbauman/vndbjs"><img src="https://img.shields.io/codeclimate/github/arbauman/vndbjs.svg?style=flat-square" alt="Code Climate" /></a>
-  <a href="https://codeclimate.com/github/arbauman/vndbjs/coverage"><img src="https://img.shields.io/codeclimate/coverage/github/arbauman/vndbjs.svg?style=flat-square" alt="Code Climate" /></a>
-  <a href="http://vndbjs.readthedocs.io/en/latest/?badge=latest"><img src="https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat-square" alt="Documentation Status" /></a>
+  <a href="https://gitlab.com/arbauman/vndbjs/commits/master"><img alt="build status" src="https://gitlab.com/arbauman/vndbjs/badges/master/build.svg" /></a>
+  <a href="https://gitlab.com/arbauman/vndbjs/commits/master"><img alt="coverage report" src="https://gitlab.com/arbauman/vndbjs/badges/master/coverage.svg" /></a>
+  <a href="https://arbauman.gitlab.io/vndbjs/"><img src="https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat-square" alt="Documentation Status" /></a>
 </p>
-A Node.js library for accessing the VNDB.org database.
+A Node.js library for accessing the Visual Novel Database.
 
 vndbjs currently does not support logging in to the database with a VNDB account.  This functionality is required for making changes to the database.  This functionality may be included at a later date, but is not planned at the moment.
 

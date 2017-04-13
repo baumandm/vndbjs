@@ -1,5 +1,5 @@
 var should = require('chai').should();
-var _vndb = require('../vndb.js');
+var _vndb = require('../src/vndb.js');
 var vndb = new _vndb("vndbtestprocess");
 
 describe("query", function() {
