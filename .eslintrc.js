@@ -4,6 +4,7 @@ module.exports = {
         "import"
     ],
     "rules": {
+      "arrow-body-style": ["off", "as-needed"],
       "comma-dangle": ["warn", {
         arrays: 'never',
         objects: 'never',
@@ -12,4 +13,5 @@ module.exports = {
         functions: 'never'
       }]
     }
+
 };

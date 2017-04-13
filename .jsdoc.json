@@ -4,7 +4,7 @@
     "dictionaries": ["jsdoc"]
   },
   "source": {
-    "include": ["src/vndb.js"]
+    "include": ["readme.md", "src/"]
   },
   "templates": {
     "cleverLinks": false,
@@ -16,7 +16,6 @@
   },
   "opts": {
     "destination": "./public/",
-    "tutorials": "./guides/",
     "encoding": "utf8",
     "private": true,
     "recurse": true,

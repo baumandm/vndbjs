@@ -1,65 +1,206 @@
-var should = require('chai').should();
-var _vndb = require('../src/vndb.js');
-var vndb = new _vndb("vndbtestprocess");
+const Vndb = require('../src/Vndb.js');
+const vndb = new Vndb('vndbtesting');
+const should = require('chai').should();
 
-describe("query", function() {
-  this.timeout(5000);
-  it("Should succeed and return JSON object of results", function(done) {
-    vndb.query("dbstats").then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('users');
-      done();
-    }).catch(function (error) {
-      done(error);
-    });
-  });
-  it("Should fail and do stuff", function(done) {
-    vndb.query("get vn fd").then( function(resolve) {
-      done("Expected an error");
-    }, function(reject) {
-      reject.should.be.a('string');
-      //reject.should.equal('error');
-      done();
+describe('vndb.stats', function() {
+  it('Should succeed and return JSON with results', function() {
+    return vndb.stats().then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'dbstats');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.tags');
+      response.head.should.be.a('string');
     });
   });
 });
 
-describe("get", function() {
-  it("Should succeed and return details on a VN", function(done) {
-    vndb.get({type:"vn", flags:["basic", "details"], filters:['id = 17']}).then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('items');
-      resolve.items.should.have.length(1);
-      let item = resolve.items[0];
-      item.should.have.property('title');
-      item.should.have.property('description');
-      item.should.not.have.property('rating');
-      done();
-    }).catch(function(error) {
-      done(error);
+describe('vndb.query', function() {
+  it('Should succeed and return JSON with results', function() {
+    return vndb.query('dbstats').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'dbstats');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.tags');
+      response.head.should.be.a('string');
     });
   });
-  it("Should fail and return 'invalid query'", function(done) {
-    vndb.get({}).then( function(resolve) {
-      done("Expected an error");
-    }, function(reject) {
-      reject.should.be.a('string');
-      //reject.should.equal('Invalid query.');
-      done();
+
+  it('Should fail and return JSON with an error.', function() {
+    return vndb.query('dbstat').then(function() {
+
+    }, function (error) {
+      error.should.be.a('object');
+      error.should.have.property('head', 'error');
+      error.body.should.have.property('msg', "Unknown command 'dbstat'");
+      error.body.should.have.property('id', 'parse');
     });
   });
 });
 
-describe("stats", function() {
-  it("Should succeed and return JSON", function(done) {
-    vndb.stats().then( function(resolve) {
-      resolve.should.be.a('object');
-      resolve.should.have.property('users');
-      resolve.should.have.property('vn');
-      resolve.should.have.property('chars');
-      done();
-    }).catch(function(error) {
-      done(error);
+describe('vndb.query (VN)', function() {
+  it('Should succeed and return JSON with VN results', function() {
+    return vndb.query('get vn basic,anime (id = 17)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', false);
+      response.body.more.should.be.a('boolean');
+      response.should.have.deep.property('body.num', 1);
+      response.body.num.should.be.a('number');
+      response.should.have.deep.property('body.items');
+      response.head.should.be.a('string');
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].id.should.equal(17);
+      items[0].should.be.a('object');
+    });
+  });
+
+  it('Should fail and return JSON with an error.', function() {
+    return vndb.query('get vn basic,anime d = 17)').then(function() {
+
+    }, function (error) {
+      error.should.be.a('object');
+      error.should.have.property('head', 'error');
+      error.body.should.have.property('msg', 'Invalid arguments to get command');
+      error.body.should.have.property('id', 'parse');
+    });
+  });
+});
+
+describe('vndb.query (Release)', function() {
+  it('Should succeed and return JSON with Release results', function() {
+    return vndb.query('get release basic,details (id = 39520)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', false);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].id.should.equal(39520);
+
+    });
+  });
+});
+
+
+describe('vndb.query (Producer)', function() {
+  it('Should succeed and return JSON with Producer results', function() {
+    return vndb.query('get producer basic,details (id = 4)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', false);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].id.should.equal(4);
+      items[0].type.should.equal('co');
+    });
+  });
+});
+
+
+describe('vndb.query (Character)', function() {
+  it('Should succeed and return JSON with Character results', function() {
+    return vndb.query('get character basic,details (id = 108)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', false);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].id.should.equal(108);
+      items[0].name.should.equal('Kagami Sumika');
+    });
+  });
+});
+
+
+describe('vndb.query (User)', function() {
+  it('Should succeed and return JSON with User results', function() {
+    return vndb.query('get user basic (username ~ "Darkarcher117")').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', false);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].id.should.equal(111679);
+      items[0].username.should.equal('darkarcher117');
+    });
+  });
+});
+
+
+describe('vndb.query (Votelist)', function() {
+  it('Should succeed and return JSON with Votelist results', function() {
+    return vndb.query('get votelist basic (uid = 111679)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', true);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].should.have.property('added');
+      items[0].should.have.property('vn');
+      items[0].should.have.property('vote');
+    });
+  });
+});
+
+
+describe('vndb.query (VNlist)', function() {
+  it('Should succeed and return JSON with VNlist results', function() {
+    return vndb.query('get vnlist basic (uid = 111679)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', true);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].should.have.property('status');
+      items[0].should.have.property('vn');
+      items[0].should.have.property('notes');
+      items[0].should.have.property('added');
+    });
+  });
+});
+
+
+describe('vndb.query (Wishlist)', function() {
+  it('Should succeed and return JSON with Wishlist results', function() {
+    return vndb.query('get wishlist basic (uid = 111679)').then(function(response) {
+      response.should.be.a('object');
+      response.should.have.property('head', 'results');
+      response.should.have.property('body');
+      response.should.have.deep.property('body.more', true);
+
+      const items = response.body.items;
+
+      items.should.be.a('array');
+      items[0].should.be.a('object');
+      items[0].should.have.property('vn');
+      items[0].should.have.property('priority');
+      items[0].should.have.property('added');
     });
   });
 });
