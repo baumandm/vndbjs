@@ -7,7 +7,7 @@ class Vndb {
   /**
   * Vndbjs pool manager
   * Manages connections and data transmission
-  * @constructor
+  * @class
   * @param {string} clientName - A name used when connecting to VNDB.org.
   * Each connection appends a shortID.
   */

@@ -5,7 +5,9 @@ class Courier extends net.Socket {
 
   /**
   * Manages an individual connections functionality.
-  * @constructor
+  * @class
+  * @extends net.Socket
+  * @see {@link https://nodejs.org/api/net.html#net_class_net_socket|net.Socket}
   */
   constructor() {
     super();
