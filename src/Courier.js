@@ -1,15 +1,46 @@
 const net = require('net');
+const clean = require('./clean.js');
 const version = require('../package.json').version;
+
+/**
+* Splits a response string into a header and body
+* @param {string} - The response to be parsed
+* @returns {Object}
+*/
+function splitResponse(response, message) {
+  const space = response.indexOf(' ');
+  const status = response.substring(0, space);
+  const body = JSON.parse(response.substring(space + 1, response.indexOf('\x04')));
+  if (status === 'error') {
+    return JSON.parse(JSON.stringify({
+      status,
+      msg: body.msg,
+      id: body.id
+    }));
+  }
+  if (status === 'dbstats') {
+    body.status = status;
+    return body;
+  }
+  return {
+    status: response.substring(0, space),
+    searchType: message.substring(4, message.indexOf(' ', 4)),
+    more: body.more,
+    items: body.items,
+    num: body.num
+  };
+}
 
 class Courier extends net.Socket {
 
   /**
   * Manages an individual connections functionality
   * @class
+  * @param {boolean} clean - If true, will clean results before returning
   * @extends net.Socket
   * @see {@link https://nodejs.org/api/net.html#net_class_net_socket|net.Socket}
   */
-  constructor() {
+  constructor(parse) {
     super();
 
     /**
@@ -17,6 +48,12 @@ class Courier extends net.Socket {
     * @type {string}
     */
     this.eol = '\x04';
+
+    /**
+    * If true, will clean results before returning
+    * @type {boolean}
+    */
+    this.parse = parse;
   }
 
   /**
@@ -32,9 +69,25 @@ class Courier extends net.Socket {
         chunk += data.toString();
         if (data.indexOf(this.eol) === -1) return;
         this.removeAllListeners('data');
-        const response = this.splitResponse(chunk);
-        if (response.head === 'error') reject(response);
-        resolve(response);
+        const response = splitResponse(chunk, message);
+        if (response.status === 'error') {
+          reject(response);
+        } else if (this.parse) {
+          switch (response.searchType) {
+            case 'vn':
+              clean.vn(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            default:
+              resolve(response);
+          }
+        } else {
+          response.searchType = undefined;
+          resolve(JSON.parse(JSON.stringify(response)));
+        }
       });
       this.send(message);
     });
@@ -90,19 +143,6 @@ class Courier extends net.Socket {
   */
   send(contents) {
     this.write(`${contents}${this.eol}`);
-  }
-
-  /**
-  * Parses a response string into a header and body
-  * @param {string} - The response to be parsed
-  * @returns {Object}
-  */
-  splitResponse(response) {
-    const parts = {};
-    const space = response.indexOf(' ');
-    parts.head = response.substring(0, space);
-    parts.body = JSON.parse(response.substring(space + 1, response.indexOf(this.eol)));
-    return parts;
   }
 }
 

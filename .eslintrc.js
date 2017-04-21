@@ -6,6 +6,9 @@ module.exports = {
     "rules": {
       "arrow-body-style": ["off", "as-needed"],
       "no-param-reassign": ["off"],
+      "no-unused-expressions": ["error", {
+        "allowTernary": true
+      }],
       "max-len": ["warn", {
         "code": 100,
         "ignoreComments": true

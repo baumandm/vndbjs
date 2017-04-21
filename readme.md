@@ -10,16 +10,25 @@
 </p>
 A Node.js library for accessing the Visual Novel Database.
 
-vndbjs currently does not support logging in to the database with a VNDB account.  This functionality is required for making changes to the database.  This functionality may be included at a later date, but is not planned at the moment.
+# Features
 
-## Features
-* Takes care of connecting and logging in.
-* Sets up a pool of connections (up to 10, as allowed by VNDB) and allocates requests automatically.
-* All queries are returned as a Promise.
-* Database results are returned as JSON objects for easy parsing.
+## Pool
+* Takes care of connecting and logging in
+* Sets up a pool of connections (up to 10, as allowed by VNDB) and allocates requests automatically
+* Maintains a minumum number of connections at all times, ready to respond to queries at a moment's notice
 
-## Installation
+## No-pool
+* No overhead, only active when needed
+* Lightwight but functional for occasional VNDB needs
+
+## Both
+* The identical interfaces
+* All queries are returned as a Promise
+* Database results are returned as JSON objects for easy parsing
+* Optional parsing mode automatically converts certain results into more usable forms
+
+# Installation
 `npm install --save vndbjs`
 
-## License
+# License
 vndbjs is licensed under the [MIT](license) license.  This library is not associated with VNDB.org
