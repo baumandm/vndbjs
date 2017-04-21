@@ -2,7 +2,7 @@ require('chai').should();
 const Vndb = require('../src/Vndb.js')
 
 const vndb = new Vndb({
-  clientName: 'VNDBtest',
+  clientName: 'vndbjs-test',
   pool: false,
   poolMin: 0,
   parse: false

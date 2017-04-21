@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="http://i.imgur.com/ujZTxlz.png"/>
+  <img src="http://i.imgur.com/GQqMIRA.png"/>
 </p>
 <p align="center">
   <a href="https://gitlab.com/arbauman/startpage"><img src="https://img.shields.io/badge/Developed%20on-GitLab-orange.svg?style=flat-square" alt="Developed on Gitlab"></a>
@@ -22,7 +22,7 @@ A Node.js library for accessing the Visual Novel Database.
 * Lightwight but functional for occasional VNDB needs
 
 ## Both
-* The identical interfaces
+* Identical interfaces
 * All queries are returned as a Promise
 * Database results are returned as JSON objects for easy parsing
 * Optional parsing mode automatically converts certain results into more usable forms

@@ -2,7 +2,7 @@ require('chai').should();
 const Vndb = require('../src/Vndb.js')
 
 const vndb = new Vndb({
-  clientName: 'VNDBtest',
+  clientName: 'vndbjs-test',
   pool: true,
   poolMin: 0,
   parse: false
@@ -25,6 +25,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('producers');
         response.should.have.property('vn');
         response.should.have.property('chars');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
       });
     });
   });
@@ -45,6 +47,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('producers');
         response.should.have.property('vn');
         response.should.have.property('chars');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
       });
     });
 
@@ -67,6 +71,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('title');
@@ -82,6 +88,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('id', 17);
@@ -95,6 +103,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('id', 17);
@@ -109,6 +119,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('id', 17);
@@ -123,6 +135,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('id', 17);
@@ -141,6 +155,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vn = response.items[0];
         vn.should.have.property('id', 17);
@@ -167,6 +183,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const release = response.items[0];
         release.should.be.a('object');
@@ -209,6 +227,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const release = response.items[0];
         release.should.be.a('object');
@@ -229,6 +249,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const producer = response.items[0];
         producer.should.be.a('object');
@@ -249,6 +271,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const producer = response.items[0];
         producer.should.be.a('object');
@@ -267,6 +291,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const character = response.items[0];
         character.should.be.a('object');
@@ -288,6 +314,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', false);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const character = response.items[0];
         character.should.be.a('object');
@@ -315,6 +343,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('more', false);
         response.should.have.property('items');
         response.should.have.property('num', 1);
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const user = response.items[0];
         user.should.be.a('object');
@@ -331,6 +361,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', true);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const list = response.items[0];
         list.should.be.a('object');
@@ -349,6 +381,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', true);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const vnlist = response.items[0];
         vnlist.should.be.a('object');
@@ -367,6 +401,8 @@ describe('Pooled Mode - Parsing Off', function() {
         response.should.have.property('status', 'results');
         response.should.have.property('more', true);
         response.should.have.property('items');
+        response.should.not.have.property('searchType');
+        response.should.not.have.property('searchID');
 
         const wishlist = response.items[0];
         wishlist.should.be.a('object');

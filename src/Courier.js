@@ -8,9 +8,8 @@ const version = require('../package.json').version;
 * @returns {Object}
 */
 function splitResponse(response, message) {
-  const space = response.indexOf(' ');
-  const status = response.substring(0, space);
-  const body = JSON.parse(response.substring(space + 1, response.indexOf('\x04')));
+  const status = response.match(/(\S+) {/)[1];
+  const body = JSON.parse(response.match(/{.+}/)[0]);
   if (status === 'error') {
     return JSON.parse(JSON.stringify({
       status,
@@ -22,9 +21,21 @@ function splitResponse(response, message) {
     body.status = status;
     return body;
   }
+  const searchType = message.substring(4, message.indexOf(' ', 4));
+  if (searchType === 'votelist' || searchType === 'vnlist' || searchType === 'wishlist') {
+    const id = message.match(/\(uid.+?(\d+)\)/)[1];
+    return {
+      status,
+      searchID: id,
+      searchType,
+      more: body.more,
+      items: body.items,
+      num: body.num
+    };
+  }
   return {
-    status: response.substring(0, space),
-    searchType: message.substring(4, message.indexOf(' ', 4)),
+    status,
+    searchType,
     more: body.more,
     items: body.items,
     num: body.num
@@ -81,11 +92,63 @@ class Courier extends net.Socket {
                 reject(error);
               });
               break;
+            case 'release':
+              clean.release(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'producer':
+              clean.producer(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'character':
+              clean.character(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'user':
+              clean.user(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'votelist':
+              clean.votelist(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'vnlist':
+              clean.vnlist(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
+            case 'wishlist':
+              clean.wishlist(response).then((cleaned) => {
+                resolve(cleaned);
+              }, (error) => {
+                reject(error);
+              });
+              break;
             default:
-              resolve(response);
+              response.searchType = undefined;
+              response.searchID = undefined;
+              resolve(JSON.parse(JSON.stringify(response)));
           }
         } else {
           response.searchType = undefined;
+          response.searchID = undefined;
           resolve(JSON.parse(JSON.stringify(response)));
         }
       });
