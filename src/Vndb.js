@@ -1,109 +1,39 @@
-const genericPool = require('generic-pool');
-const shortid = require('shortid');
-const Courier = require('./Courier.js');
+const Client = require('./Client.js');
+const ClientPool = require('./ClientPool.js');
+const defaults = require('defaults-shallow');
 
-class Vndb {
+const defaultSettings = {
+  pool: true,
+  uri: 'api.vndb.org',
+  port: 19534,
+  encoding: 'utf8',
+  parse: true
+};
 
-  /**
-  * Vndbjs pool manager
-  * Manages connections and data transmission
-  * @class
-  * @param {string} clientName - A name used when connecting to VNDB.org.
-  * Each connection appends a shortID.
-  */
-  constructor(clientName) {
-    /**
-    * The name prepended to all connections with VNDB.
-    * @type {string}
-    */
-    this.clientName = clientName;
-
-    /**
-    * The remote URI to connect to.
-    * @type {string}
-    */
-    this.uri = 'api.vndb.org';
-
-    /**
-    * The port number of the connection.
-    * @type {number}
-    */
-    this.port = 19534;
-
-    /**
-    * The encoding setting.
-    * @type {string}
-    */
-    this.encoding = 'utf8';
-
-    /**
-    * The pool of connections vndbjs will distribute to requests.
-    * @type {Object}
-    */
-    this.connectionPool = genericPool.createPool({
-      create: () => {
-        return new Promise((resolve, reject) => {
-          const client = new Courier();
-          client.makeConnection(this.uri, this.port, this.encoding).then(() => {
-            client.login(`${this.clientName}-${shortid.generate()}`).then(() => {
-              resolve(client);
-            }).catch((err) => {
-              reject(err);
-            });
-          }).catch((err) => {
-            reject(err);
-          });
-        });
-      },
-      destroy: (client) => {
-        return new Promise((resolve) => {
-          client.on('end', () => {
-            resolve(client);
-          });
-          client.end();
-        });
-      }
-    }, {
-      min: 1,
-      max: 10
-    });
-  }
+module.exports = {
 
   /**
-  * A conveience function to look up vndb stats.
-  * Resolves once the server responds.
-  * @returns {Promise<Object>}
-  */
-  stats() {
-    return new Promise((resolve, reject) => {
-      this.query('dbstats').then((response) => {
-        resolve(response);
-      }, (error) => {
-        reject(error);
-      });
-    });
+  * The Vndbjs constructor
+  * @name init
+  * @module
+  * @param {Object} options - Config object
+  * @param {string} options.clientName - A name representing the client application.
+  * @param {boolean} [options.pool=true] - true: Vndbjs runs in Pooled Mode.  Connections are maintained long-term for re-use.  Lowers latency
+  * false: Vndbjs must open a new connection for every query.  Increases latency, but may also decrease memory usage when not in use
+  * @param {string} [options.uri='api.vndb.org'] - [Debug only] The uri you want to connect to
+  * @param {number} [options.port=19534] - [Debug only] The port number of the connection.  The TSL port is currently unsupported
+  * @param {string} [options.encoding='utf8'] - [Debug only] The encoding standard to use
+  * @param {boolean} [options.parse=true] - Set true to have vndbjs adjust results to improve usability
+  * @returns new ClientPool(options) OR new Client(options)
+  **/
+  init(options = {}) {
+    const pool = options.pool;
+    defaults(options, defaultSettings);
+    options.pool = undefined;
+    options = JSON.parse(JSON.stringify(options));
+    if (pool === true) {
+      return new ClientPool(options);
+    }
+    return new Client(options);
   }
-
-  /**
-  * Passes a query string off to the Courier.
-  * Resolves once the Courier responds.
-  * @param {string} - vndb-compatible query string.
-  * @returns {Promise<Object>}
-  */
-  query(message) {
-    return new Promise((resolve, reject) => {
-      const connection = this.connectionPool.acquire();
-      connection.then((client) => {
-        client.awaitResponse(message).then((response) => {
-          this.connectionPool.release(client);
-          resolve(response);
-        }, (error) => {
-          this.connectionPool.release(client);
-          reject(error);
-        });
-      });
-    });
-  }
-}
-
-module.exports = Vndb;
+};

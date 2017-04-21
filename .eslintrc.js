@@ -5,6 +5,11 @@ module.exports = {
     ],
     "rules": {
       "arrow-body-style": ["off", "as-needed"],
+      "no-param-reassign": ["off"],
+      "max-len": ["warn", {
+        "code": 100,
+        "ignoreComments": true
+      }],
       "comma-dangle": ["warn", {
         arrays: 'never',
         objects: 'never',
