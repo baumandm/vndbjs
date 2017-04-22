@@ -1,77 +1,32 @@
+/* eslint class-methods-use-this: "off" */
 const net = require('net');
 const clean = require('./clean.js');
 const version = require('../package.json').version;
 
 /**
-* Splits a response string into a header and body
-* @param {string} - The response to be parsed
-* @returns {Object}
-*/
-function splitResponse(response, message) {
-  const status = response.match(/(\S+) {/)[1];
-  const body = JSON.parse(response.match(/{.+}/)[0]);
-  if (status === 'error') {
-    return JSON.parse(JSON.stringify({
-      status,
-      msg: body.msg,
-      id: body.id
-    }));
-  }
-  if (status === 'dbstats') {
-    body.status = status;
-    return body;
-  }
-  const searchType = message.substring(4, message.indexOf(' ', 4));
-  if (searchType === 'votelist' || searchType === 'vnlist' || searchType === 'wishlist') {
-    const id = message.match(/\(uid.+?(\d+)\)/)[1];
-    return {
-      status,
-      searchID: id,
-      searchType,
-      more: body.more,
-      items: body.items,
-      num: body.num
-    };
-  }
-  return {
-    status,
-    searchType,
-    more: body.more,
-    items: body.items,
-    num: body.num
-  };
-}
-
+* Represents a socket connection
+* @class
+* @extends net.Socket
+* @see {@link https://nodejs.org/api/net.html#net_class_net_socket|net.Socket}
+* @prop {string} eol The end of line character
+* @prop {boolean} parse Whether to clean data from VNDB
+**/
 class Courier extends net.Socket {
-
   /**
-  * Manages an individual connections functionality
-  * @class
+  * Create a socket
+  * @constructor
   * @param {boolean} clean - If true, will clean results before returning
-  * @extends net.Socket
-  * @see {@link https://nodejs.org/api/net.html#net_class_net_socket|net.Socket}
   */
   constructor(parse) {
     super();
-
-    /**
-    * The end-of-line character
-    * @type {string}
-    */
     this.eol = '\x04';
-
-    /**
-    * If true, will clean results before returning
-    * @type {boolean}
-    */
     this.parse = parse;
   }
 
   /**
-  * Sends a message and collects the response
-  * Resolves once the message has been recieved and parsed
-  * @param {string} - The message to be sent to the server
-  * @returns {Promise<Object>}
+  * Sends a query to VNDB
+  * @param {string} - A VNDB-compatible query string
+  * @returns {Promise<Object>} Resolves when a response is received
   */
   awaitResponse(message) {
     return new Promise((resolve, reject) => {
@@ -80,89 +35,36 @@ class Courier extends net.Socket {
         chunk += data.toString();
         if (data.indexOf(this.eol) === -1) return;
         this.removeAllListeners('data');
-        const response = splitResponse(chunk, message);
+        const response = this.splitResponse(chunk, message);
         if (response.status === 'error') {
           reject(response);
         } else if (this.parse) {
-          switch (response.searchType) {
-            case 'vn':
-              clean.vn(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'release':
-              clean.release(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'producer':
-              clean.producer(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'character':
-              clean.character(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'user':
-              clean.user(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'votelist':
-              clean.votelist(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'vnlist':
-              clean.vnlist(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            case 'wishlist':
-              clean.wishlist(response).then((cleaned) => {
-                resolve(cleaned);
-              }, (error) => {
-                reject(error);
-              });
-              break;
-            default:
-              response.searchType = undefined;
-              response.searchID = undefined;
-              resolve(JSON.parse(JSON.stringify(response)));
+          if (response.status === 'dbstats') {
+            response.searchType = undefined;
+            response.searchID = undefined;
+            resolve(JSON.parse(JSON.stringify(response)));
           }
+          clean.parse(response).then((cleaned) => {
+            resolve(cleaned);
+          }, (error) => {
+            reject(error);
+          });
         } else {
           response.searchType = undefined;
           response.searchID = undefined;
           resolve(JSON.parse(JSON.stringify(response)));
         }
       });
-      this.send(message);
+      this.write(`${message}${this.eol}`);
     });
   }
 
   /**
-  * Establishes a connection with the vndb server
-  * Resolves once the server is connected
-  * @param {string} - The remote URI to connect to
-  * @param {number} - The port number of the connection
-  * @param {string} - The encoding setting
-  * @returns {Promise}
+  * Connects to the server
+  * @param {string} uri The remote URI to connect to
+  * @param {number} port The port number of the connection
+  * @param {string} encoding The encoding setting
+  * @returns {Promise} Resolves once the server confirms the connection
   */
   contact(uri, port, encoding) {
     return new Promise((resolve, reject) => {
@@ -178,10 +80,9 @@ class Courier extends net.Socket {
   }
 
   /**
-  * Registers client name with vndb.org
-  * Resolves once the server authorizes connection
-  * @param {string} - A UUID for this particular connection, used to log in
-  * @returns {Promise}
+  * Registers client with VNDB
+  * @param {string} clientName A UUID for this particular connection, used to log in
+  * @returns {Promise} Resolves once the server authorizes connection
   */
   register(clientName) {
     return new Promise((resolve, reject) => {
@@ -196,16 +97,50 @@ class Courier extends net.Socket {
           resolve();
         }
       });
-      this.send(`login {"protocol":1,"client":"${clientName}","clientver":"${version}"}`);
+      this.write(`login {"protocol":1,"client":"${clientName}"
+,"clientver":"${version}"}${this.eol}`);
     });
   }
 
   /**
-  * A utility function, appends the ending code
-  * @param {string} - The content of the message
+  * Format a response into an Object
+  * @param {string} response The raw response from VNDB
+  * @param {string} message The query string
+  * @returns {Object}
   */
-  send(contents) {
-    this.write(`${contents}${this.eol}`);
+  splitResponse(response, message) {
+    const status = response.match(/(\S+) {/)[1];
+    const body = JSON.parse(response.match(/{.+}/)[0]);
+    if (status === 'error') {
+      return JSON.parse(JSON.stringify({
+        status,
+        msg: body.msg,
+        id: body.id
+      }));
+    }
+    if (status === 'dbstats') {
+      body.status = status;
+      return body;
+    }
+    const searchType = message.substring(4, message.indexOf(' ', 4));
+    if (searchType === 'votelist' || searchType === 'vnlist' || searchType === 'wishlist') {
+      const id = message.match(/\(uid.+?(\d+)\)/)[1];
+      return {
+        status,
+        searchID: id,
+        searchType,
+        more: body.more,
+        items: body.items,
+        num: body.num
+      };
+    }
+    return {
+      status,
+      searchType,
+      more: body.more,
+      items: body.items,
+      num: body.num
+    };
   }
 }
 

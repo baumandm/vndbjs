@@ -14,92 +14,38 @@ const defaultSettings = {
   parse: true
 };
 
+/**
+* Represents the main vndbjs client
+* @class
+* @prop {Object} options Vndbjs config settings
+* @prop {Object} connectionPool The connection pool
+**/
 class Vndb {
 
   /**
-  * Class representing vndbjs's connection interface
-  * Manages connections and data transmission
-  * @class
-  * @param {Object} options - The Client configuration object
-  * @param {string} options.clientName - A name representing the client application
-  * @param {boolean} [options.pool=true] - true: Vndbjs runs in Pooled Mode.  Connections are maintained long-term for re-use.  Lowers latency
-  * false: Vndbjs must open a new connection for every query.  Increases latency, but may also decrease memory usage when not in use
-  * @param {number} [options.poolMin=1] - The minimum number of connections the pool will maintain at all times
-  * @param {number} [options.poolMax=10] - [Debug only] The maximum number of connections the pool can hold.  VNDB.org limits active connections from the same IP to 10, so changing this is unadvised
-  * @param {number} [options.poolTimeout=30000] - The time in milliseconds that an idle connection will stay open before being destroyed
-  * @param {string} [options.uri='api.vndb.org'] - [Debug only] The uri you want to connect to
-  * @param {number} [options.port=19534] - [Debug only] The port number of the connection.  The TSL port is currently unsupported
-  * @param {string} [options.encoding='utf8'] - [Debug only] The encoding standard to use
-  * @param {boolean} [options.parse=true] - Set true to have vndbjs adjust results to improve usability.  Examples may be found in the tutorials
+  * Create a client
+  * @constructor
+  * @param {Object} options The Client configuration object
+  * @param {string} options.clientName A unique name signifying this client
+  * @param {boolean} [options.pool=true] Whether to run in Pooled Mode
+  * @param {number} [options.poolMin=1] How many connections the pool should maintain
+  * @param {number} [options.poolMax=10] The maximum number of connections the pool can open
+  * @param {number} [options.poolTimeout=30000] The number of milliseconds a connection can remain idle before being destroyed
+  * @param {string} [options.uri='api.vndb.org'] The uri of VNDB's database server
+  * @param {number} [options.port=19534] The port number of VNDB's database server
+  * @param {string} [options.encoding='utf8'] The encoding standard used by all sockets
+  * @param {boolean} [options.parse=true] Whether the sockets should clean VNDB's responses before returning
   */
   constructor(options) {
     defaults(options, defaultSettings);
-    /**
-    * The name prepended to all connections with VNDB
-    * @type {string}
-    */
-    this.clientName = options.clientName;
-
-    /**
-    * The boolean switch between pooled and unpooled modes
-    * @type {boolean}
-    */
-    this.pool = options.pool;
-
-    /**
-    * The minimum number of connections to pool
-    * @type {number}
-    */
-    this.poolMin = options.poolMin;
-
-    /**
-    * The maximum number of connections to pool
-    * @type {number}
-    */
-    this.poolMax = options.poolMax;
-
-    /**
-    * The time in milliseconds that an idle connection will stay open before being destroyed
-    * @type {number}
-    */
-    this.poolTimeout = options.poolTimeout;
-
-    /**
-    * The remote URI to connect to
-    * @type {string}
-    */
-    this.uri = options.uri;
-
-    /**
-    * The port number of the connection
-    * @type {number}
-    */
-    this.port = options.port;
-
-    /**
-    * The encoding setting
-    * @type {string}
-    */
-    this.encoding = options.encoding;
-
-    /**
-    * Whether or not vndbjs should convert vndb responses to a more usable format
-    * @type {boolean}
-    */
-    this.parse = options.parse;
-
-    if (this.pool === true) {
-      /**
-      * The pool of connections vndbjs will distribute to requests
-      * Will not be present if pool is set to false
-      * @type {Object}
-      */
+    this.options = options;
+    if (this.options.pool === true) {
       this.connectionPool = genericPool.createPool({
         create: () => {
           return new Promise((resolve, reject) => {
-            const client = new Courier(this.parse);
-            client.contact(this.uri, this.port, this.encoding).then(() => {
-              client.register(`${this.clientName}-${shortid.generate()}`).then(() => {
+            const client = new Courier(this.options.parse);
+            client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
+              client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
                 resolve(client);
               }).catch((err) => {
                 reject(err);
@@ -118,22 +64,21 @@ class Vndb {
           });
         }
       }, {
-        min: this.poolMin,
-        max: this.poolMax,
-        idleTimeoutMillis: this.poolTimeout
+        min: this.options.poolMin,
+        max: this.options.poolMax,
+        idleTimeoutMillis: this.options.poolTimeout
       });
     }
   }
 
   /**
-  * Passes a query string off to the Courier
-  * Resolves once the Courier responds
-  * @param {string} - vndb-compatible query string
-  * @returns {Promise<Object>}
+  * Create a Courier to send a message
+  * @param {string} message VNDB-compatible query string
+  * @returns {Promise<Object>} Resolves once the Courier responds
   */
   query(message) {
     return new Promise((resolve, reject) => {
-      if (this.pool === true) {
+      if (this.options.pool === true) {
         const connection = this.connectionPool.acquire();
         connection.then((client) => {
           client.awaitResponse(message).then((response) => {
@@ -145,9 +90,9 @@ class Vndb {
           });
         });
       } else {
-        const client = new Courier(this.parse);
-        client.contact(this.uri, this.port, this.encoding).then(() => {
-          client.register(`${this.clientName}-${shortid.generate()}`).then(() => {
+        const client = new Courier(this.options.parse);
+        client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
+          client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
             client.awaitResponse(message).then((response) => {
               client.destroy();
               resolve(response);
@@ -168,23 +113,21 @@ class Vndb {
   }
 
   /**
-  * A conveience function to look up vndb stats
-  * Resolves once the server responds
-  * @function
-  * @returns {Promise<Object>}
+  * Get general stats from VNDB
+  * @returns {Promise<Object>} Resolves once the server responds
   */
   stats() {
     return new Promise((resolve, reject) => {
-      if (this.pool === true) {
+      if (this.options.pool === true) {
         this.query('dbstats').then((response) => {
           resolve(response);
         }, (error) => {
           reject(error);
         });
       } else {
-        const client = new Courier(this.parse);
-        client.contact(this.uri, this.port, this.encoding).then(() => {
-          client.register(`${this.clientName}-${shortid.generate()}`).then(() => {
+        const client = new Courier(this.options.parse);
+        client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
+          client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
             client.awaitResponse('dbstats').then((response) => {
               client.destroy();
               resolve(response);

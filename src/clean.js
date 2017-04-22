@@ -2,9 +2,13 @@
 const ref = require('./reference.js');
 
 /**
-* A helper function to create the base of the results object
-* @function
-* @param {Object} data - The unparsed results
+* Cleans VNDB data into a more usable form
+* @module clean
+**/
+
+/**
+* Create the root of a response Object
+* @param {Object} data The unparsed Object
 * @returns {Object}
 **/
 function prepHeader(data) {
@@ -16,12 +20,11 @@ function prepHeader(data) {
 }
 
 /**
-* Replaces an individual VN with a cleaned version
-* @function
+* Cleans a VN
 * @param {Object} vn - A single VN
 * @returns {Object}
 **/
-function vnParse(vn) {
+function parseVN(vn) {
   const newVN = {
     id: vn.id,
     link: `https://vndb.org/v${vn.id}`
@@ -117,12 +120,11 @@ function vnParse(vn) {
 }
 
 /**
-* Replaces an individual Release with a cleaned version
-* @function
-* @param {Object} rel - A single release
+* Cleans a Release
+* @param {Object} rel A single release
 * @returns {Object}
 **/
-function releaseParse(rel) {
+function parseRelease(rel) {
   const newRel = {
     id: rel.id,
     link: `https://vndb.org/r${rel.id}`
@@ -152,7 +154,12 @@ function releaseParse(rel) {
     newRel.website = rel.website || null;
   }
   if (rel.notes !== undefined) {
-    newRel.notes = rel.notes || null;
+    rel.notes !== null
+    ? newRel.notes = rel.notes
+    .replace(/\[.+\]/g, '')
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/\n+/g, '\n')
+    : newRel.notes = null;
   }
   if (rel.minage !== undefined) {
     newRel.minage = rel.minage || null;
@@ -177,12 +184,17 @@ function releaseParse(rel) {
     });
   }
   if (rel.vn !== undefined) {
-    newRel.vn = rel.vn;
+    newRel.vn = [];
+    rel.vn.forEach((producer) => {
+      producer.link = `https://vndb.org/v${producer.id}`;
+      newRel.vn.push(producer);
+    });
   }
   if (rel.producers !== undefined) {
     newRel.producers = [];
     rel.producers.forEach((producer) => {
       producer.type = ref.producerType[producer.type] || producer.type;
+      producer.link = `https://vndb.org/p${producer.id}`;
       newRel.producers.push(producer);
     });
   }
@@ -190,12 +202,11 @@ function releaseParse(rel) {
 }
 
 /**
-* Replaces an individual Producer with a cleaned version
-* @function
-* @param {Object} pro - A single producer
+* Cleans a Producer
+* @param {Object} pro - A single Producer
 * @returns {Object}
 **/
-function producerParse(pro) {
+function parseProducer(pro) {
   const newPro = {
     id: pro.id,
     link: `https://vndb.org/p${pro.id}`
@@ -231,6 +242,7 @@ function producerParse(pro) {
     newPro.relations = [];
     pro.relations.forEach((relation) => {
       relation.relation = ref.proRelations[relation.relation] || relation.relation;
+      relation.link = `https://vndb.org/p${relation.id}`;
       newPro.relations.push(relation);
     });
   }
@@ -238,12 +250,11 @@ function producerParse(pro) {
 }
 
 /**
-* Replaces an individual Character with a cleaned version
-* @function
-* @param {Object} cha - A single character
+* Cleans a Character
+* @param {Object} cha - A single Character
 * @returns {Object}
 **/
-function characterParse(cha) {
+function parseCharacter(cha) {
   const newCha = {
     id: cha.id,
     link: `https://vndb.org/c${cha.id}`
@@ -299,12 +310,11 @@ function characterParse(cha) {
 }
 
 /**
-* Replaces an individual User with a cleaned version
-* @function
-* @param {Object} user - A single user
+* Cleans a User
+* @param {Object} user - A single User
 * @returns {Object}
 **/
-function userParse(user) {
+function parseUser(user) {
   const newUser = {
     id: user.id,
     username: user.username,
@@ -314,12 +324,11 @@ function userParse(user) {
 }
 
 /**
-* Replaces an individual Votelist with a cleaned version
-* @function
-* @param {Object} list - A single votelist
+* Cleans a Votelist
+* @param {Object} list - A single Votelist
 * @returns {Object}
 **/
-function votelistParse(list) {
+function parseVotelist(list) {
   const newList = {
     vn: list.vn,
     vote: list.vote / 10,
@@ -329,12 +338,11 @@ function votelistParse(list) {
 }
 
 /**
-* Replaces an individual VNlist with a cleaned version
-* @function
+* Cleans a VNlist
 * @param {Object} list - A single VNlist
 * @returns {Object}
 **/
-function vnlistParse(list) {
+function parseVNlist(list) {
   const newList = {
     vn: list.vn,
     status: ref.listStatus[list.status],
@@ -345,12 +353,11 @@ function vnlistParse(list) {
 }
 
 /**
-* Replaces an individual Wishlist with a cleaned version
-* @function
-* @param {Object} list - A single wishlist
+* Cleans a Wishlist
+* @param {Object} list - A single Wishlist
 * @returns {Object}
 **/
-function wishlistParse(list) {
+function parseWishlist(list) {
   const newList = {
     vn: list.vn,
     priority: ref.priority[list.priority],
@@ -359,140 +366,60 @@ function wishlistParse(list) {
   return newList;
 }
 
-/**
-* A helper module for parsing results
-* @module clean
-**/
 module.exports = {
 
   /**
-  * Cleans data from a VN
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
+  * Sorts the data to one of the parsing functions
+  * @param {Object} data - The unparsed data from VNDB
+  * @returns {Promise<Object>} Resolves when data is clensed
   **/
-  vn(data) {
+  parse(data) {
     return new Promise((resolve) => {
       const response = prepHeader(data);
-      response.items = data.items.map((vn) => {
-        return vnParse(vn);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a Release
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  release(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.items = data.items.map((release) => {
-        return releaseParse(release);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a Producer
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  producer(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.items = data.items.map((producer) => {
-        return producerParse(producer);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a Character
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  character(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.items = data.items.map((character) => {
-        return characterParse(character);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a User
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  user(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.items = data.items.map((user) => {
-        return userParse(user);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a Votelist
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  votelist(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.link = `https://vndb.org/u${data.searchID}/votes`;
-      response.items = data.items.map((votelist) => {
-        return votelistParse(votelist);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a VNlist
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  vnlist(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.link = `https://vndb.org/u${data.searchID}/list`;
-      response.items = data.items.map((vnlist) => {
-        return vnlistParse(vnlist);
-      });
-      resolve(response);
-    });
-  },
-
-  /**
-  * Cleans data from a Wishlist
-  * @function
-  * @param {Object} data - The unparsed results
-  * @returns {Promise<Object>}
-  **/
-  wishlist(data) {
-    return new Promise((resolve) => {
-      const response = prepHeader(data);
-      response.link = `https://vndb.org/u${data.searchID}/wish`;
-      response.items = data.items.map((wishlist) => {
-        return wishlistParse(wishlist);
-      });
-      resolve(response);
+      if (data.searchType === 'vn') {
+        response.items = data.items.map((vn) => {
+          return parseVN(vn);
+        });
+        resolve(response);
+      } else if (data.searchType === 'release') {
+        response.items = data.items.map((release) => {
+          return parseRelease(release);
+        });
+        resolve(response);
+      } else if (data.searchType === 'producer') {
+        response.items = data.items.map((producer) => {
+          return parseProducer(producer);
+        });
+        resolve(response);
+      } else if (data.searchType === 'character') {
+        response.items = data.items.map((character) => {
+          return parseCharacter(character);
+        });
+        resolve(response);
+      } else if (data.searchType === 'user') {
+        response.items = data.items.map((user) => {
+          return parseUser(user);
+        });
+        resolve(response);
+      } else if (data.searchType === 'votelist') {
+        response.link = `https://vndb.org/u${data.searchID}/votes`;
+        response.items = data.items.map((votelist) => {
+          return parseVotelist(votelist);
+        });
+        resolve(response);
+      } else if (data.searchType === 'vnlist') {
+        response.link = `https://vndb.org/u${data.searchID}/list`;
+        response.items = data.items.map((vnlist) => {
+          return parseVNlist(vnlist);
+        });
+        resolve(response);
+      } else if (data.searchType === 'wishlist') {
+        response.link = `https://vndb.org/u${data.searchID}/wish`;
+        response.items = data.items.map((wishlist) => {
+          return parseWishlist(wishlist);
+        });
+        resolve(response);
+      }
     });
   }
 };

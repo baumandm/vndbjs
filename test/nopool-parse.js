@@ -8,7 +8,7 @@ const vndb = new Vndb({
   parse: true
 });
 
-describe('Pooled Mode - Parsing On', function() {
+describe('Unpooled Mode - Parsing On', function() {
 
   /*****************************************************************************
   *  VNs                                                                       *

@@ -1,3 +1,19 @@
+/**
+* Reference Object converting VNDB data into more useful forms
+* @module reference
+* @prop {Object} platforms VNDB platform codes
+* @prop {Array} length VNDB length codes
+* @prop {Object} languages VNDB language codes
+* @prop {Object} vnRelations VNDB relation codes between VNs
+* @prop {Object} proRelations VNDB relation codes between Producers
+* @prop {Object} releaseType VNDB release type codes
+* @prop {Object} producerType VNDB producer type codes
+* @prop {Object} media VNDB release media codes
+* @prop {Object} characterGender VNDB character gender codes
+* @prop {Array} listStatus VNDB User VNlist codes
+* @prop {Array} priority VNDB User Wishlist codes
+**/
+
 module.exports = {
   platforms: {
     win: 'Windows',
@@ -58,7 +74,8 @@ module.exports = {
     ipa: 'Parent Brand',
     par: 'Parent Producer',
     spa: 'Spawned',
-    sub: 'Subsidiary'
+    sub: 'Subsidiary',
+    imp: 'Imprint'
   },
   releaseType: {
     complete: 'Complete',

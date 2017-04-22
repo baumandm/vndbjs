@@ -72,4 +72,4 @@ This configures the encoding setting of the socket connection.  `utf8` is curren
 
 ## options.parse
 
-This option will configure vndbjs to parse the results that VNDB.org provides and make seamless improvements to the data.  Some examples include cleaning up the text in descriptions, converting game lengths (represented by numbers 1 through 5) to their corresponding strings, etc.  
+This option will configure vndbjs to parse the results that VNDB.org provides and make seamless improvements to the data.  See later sections of the tutorials for examples of the changes
