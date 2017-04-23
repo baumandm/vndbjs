@@ -2,7 +2,7 @@
   <img src="http://i.imgur.com/trYFXTz.png"/>
 </p>
 <p align="center">
-  <a href="https://gitlab.com/arbauman/startpage"><img src="https://img.shields.io/badge/Developed%20on-GitLab-orange.svg?style=flat-square" alt="Developed on Gitlab"></a>
+  <a href="https://gitlab.com/arbauman/vndbjs"><img src="https://img.shields.io/badge/Developed%20on-GitLab-orange.svg?style=flat-square" alt="Developed on Gitlab"></a>
   <a href="https://www.npmjs.com/package/vndbjs"><img src="https://img.shields.io/npm/v/vndbjs.svg?style=flat-square" alt="npm" /></a>
   <a href="https://gitlab.com/arbauman/vndbjs/commits/master"><img alt="build status" src="https://gitlab.com/arbauman/vndbjs/badges/master/build.svg" /></a>
   <a href="https://gitlab.com/arbauman/vndbjs/commits/master"><img alt="coverage report" src="https://gitlab.com/arbauman/vndbjs/badges/master/coverage.svg" /></a>
@@ -14,6 +14,7 @@ A Node.js library for accessing the Visual Novel Database.
 # Features
 
 * Automatically connects and registers
+* Supports all query types: vn, release, producer, character, user, votelist, vnlist, and wishlist
 * Optional Pooling mode
   * Automatically allocates connections to incoming requests
   * Reuses connections multiple times
