@@ -1,5 +1,3 @@
-image: node:latest
-
 before_script:
   - node -v
   - npm -v
@@ -9,7 +7,16 @@ stages:
   - test
   - deploy
 
-coverage:
+coverLatest:
+  image: node:latest
+  stage: test
+  script:
+    - npm run cover
+  only:
+    - master
+
+cover6:
+  image: node:6.0.0
   stage: test
   script:
     - npm run cover
@@ -17,6 +24,7 @@ coverage:
     - master
 
 lint:
+  image: node:latest
   stage: test
   script:
     - npm run lint
@@ -24,6 +32,7 @@ lint:
     - master
 
 pages:
+  image: node:latest
   stage: deploy
   script:
     - npm run docs

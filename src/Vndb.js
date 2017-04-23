@@ -4,18 +4,17 @@ const RateLimiter = require('limiter').RateLimiter;
 const defaults = require('defaults-shallow');
 const Courier = require('./Courier.js');
 
-
 const defaultSettings = {
-  pool: true,
-  poolMin: 1,
-  poolMax: 10,
-  poolTimeout: 30000,
   uri: 'api.vndb.org',
   port: 19534,
   encoding: 'utf8',
-  parse: true,
   queryLimit: 20,
-  queryInterval: 60000
+  queryInterval: 60000,
+  parse: true,
+  pool: true,
+  poolMin: 1,
+  poolMax: 10,
+  poolTimeout: 30000
 };
 
 /**
@@ -23,24 +22,24 @@ const defaultSettings = {
 * @class
 * @prop {Object} options Vndbjs config settings
 * @prop {RateLimiter} limiter A ratelimiter responsible for preventing vndbjs from overloading VNDB
-* @prop {Pool} connectionPool The connection pool
+* @prop {Pool} connectionPool A generic pool of Couriers
 **/
 class Vndb {
   /**
   * Create a client
   * @constructor
   * @param {Object} options The Client configuration object
-  * @param {string} options.clientName A unique name signifying this client
-  * @param {boolean} [options.pool=true] Whether to run in Pooled Mode
-  * @param {number} [options.poolMin=1] How many connections the pool should maintain
-  * @param {number} [options.poolMax=10] The maximum number of connections the pool can open
-  * @param {number} [options.poolTimeout=30000] The number of milliseconds a connection can remain idle before being destroyed
+  * @param {string} options.clientName A unique name identifying this client
   * @param {string} [options.uri='api.vndb.org'] The uri of VNDB's database server
   * @param {number} [options.port=19534] The port number of VNDB's database server
   * @param {string} [options.encoding='utf8'] The encoding standard used by all sockets
-  * @param {boolean} [options.parse=true] Whether the sockets should clean VNDB's responses before returning
   * @param {number} [options.queryLimit=20] The number of queries vndbjs will perform every [queryLimit] milliseconds
   * @param {number|string} [options.queryInterval=60000] The number of milliseconds during which [queryLimit] queries can be performed.  String values may be 'second', 'minute', 'hour', or 'day'
+  * @param {boolean} [options.parse=true] Whether the sockets should clean VNDB's responses before returning
+  * @param {boolean} [options.pool=true] Whether to run in Pooled mode
+  * @param {number} [options.poolMin=1] How many connections the pool should maintain
+  * @param {number} [options.poolMax=10] The maximum number of connections the pool can open
+  * @param {number} [options.poolTimeout=30000] The number of milliseconds a connection can remain idle before being destroyed
   */
   constructor(options) {
     defaults(options, defaultSettings);
@@ -122,7 +121,7 @@ class Vndb {
   }
 
   /**
-  * Get general stats from VNDB
+  * Request general metrics from VNDB
   * @returns {Promise<Object>} Resolves once the server responds
   */
   stats() {

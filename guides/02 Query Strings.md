@@ -3,7 +3,7 @@
 To get information from VNDB, you must use the `.query()` function.  This function takes one argument: a VNDB-compatible query string.  The format for this string can be broken into 5 parts.
 
 ```md
-get [type] [flags] [filters] [options]
+get [type] [flags] [filters] [options]\x04
 ```
 
 For example:
@@ -58,3 +58,7 @@ This accepts a string that corresponds to one of the fields of the Type you're s
 *default: false*
 
 This is a boolean, which simply reverses the order of the results.  Setting to true while sorting by rating returns highest ratings first, while setting to false returns lowest ratings first.
+
+### \x04
+
+All messages to and from VNDB end in this end-of-line character, represented as `\x04`.  Vndbjs automatically adds this to the end of all sent messages, and removes it from all returned messages.  There is no need for you to affix this to the end of your query strings.

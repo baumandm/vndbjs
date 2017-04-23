@@ -1,23 +1,9 @@
 /* eslint no-unused-expressions: "off" */
 const ref = require('./reference.js');
-
 /**
 * Cleans VNDB data into a more usable form
 * @module clean
 **/
-
-/**
-* Create the root of a response Object
-* @param {Object} data The unparsed Object
-* @returns {Object}
-**/
-function prepHeader(data) {
-  return {
-    status: data.status,
-    more: data.more,
-    num: data.num
-  };
-}
 
 /**
 * Cleans a VN
@@ -367,7 +353,6 @@ function parseWishlist(list) {
 }
 
 module.exports = {
-
   /**
   * Sorts the data to one of the parsing functions
   * @param {Object} data - The unparsed data from VNDB
@@ -375,7 +360,11 @@ module.exports = {
   **/
   parse(data) {
     return new Promise((resolve) => {
-      const response = prepHeader(data);
+      const response = {
+        status: data.status,
+        more: data.more,
+        num: data.num
+      };
       if (data.searchType === 'vn') {
         response.items = data.items.map((vn) => {
           return parseVN(vn);
