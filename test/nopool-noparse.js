@@ -5,6 +5,7 @@ const vndb = new Vndb({
   clientName: 'vndbjs-test',
   pool: false,
   poolMin: 0,
+  poolMax: 2,
   parse: false
 });
 

@@ -3,6 +3,12 @@ const net = require('net');
 const clean = require('./clean.js');
 const version = require('../package.json').version;
 
+function wait(duration) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, duration);
+  });
+}
+
 /**
 * Represents a socket connection
 * @class
@@ -37,7 +43,19 @@ class Courier extends net.Socket {
         this.removeAllListeners('data');
         const response = this.splitResponse(chunk, message);
         if (response.status === 'error') {
-          reject(response);
+          switch (response.id) {
+            case 'throttled':
+              wait(response.fullwait * 1000).then(() => {
+                this.awaitResponse(message).then((delayedResponse) => {
+                  resolve(delayedResponse);
+                }, (error) => {
+                  reject(error);
+                });
+              });
+              break;
+            default:
+              reject(response);
+          }
         } else if (this.parse) {
           if (response.status === 'dbstats') {
             response.searchType = undefined;
@@ -112,11 +130,8 @@ class Courier extends net.Socket {
     const status = response.match(/(\S+) {/)[1];
     const body = JSON.parse(response.match(/{.+}/)[0]);
     if (status === 'error') {
-      return JSON.parse(JSON.stringify({
-        status,
-        msg: body.msg,
-        id: body.id
-      }));
+      body.status = status;
+      return body;
     }
     if (status === 'dbstats') {
       body.status = status;
@@ -125,22 +140,14 @@ class Courier extends net.Socket {
     const searchType = message.substring(4, message.indexOf(' ', 4));
     if (searchType === 'votelist' || searchType === 'vnlist' || searchType === 'wishlist') {
       const id = message.match(/\(uid.+?(\d+)\)/)[1];
-      return {
-        status,
-        searchID: id,
-        searchType,
-        more: body.more,
-        items: body.items,
-        num: body.num
-      };
+      body.status = status;
+      body.searchID = id;
+      body.searchType = searchType;
+      return body;
     }
-    return {
-      status,
-      searchType,
-      more: body.more,
-      items: body.items,
-      num: body.num
-    };
+    body.status = status;
+    body.searchType = searchType;
+    return body;
   }
 }
 

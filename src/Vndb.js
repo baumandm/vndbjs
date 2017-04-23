@@ -1,7 +1,9 @@
 const genericPool = require('generic-pool');
 const shortid = require('shortid');
+const RateLimiter = require('limiter').RateLimiter;
 const defaults = require('defaults-shallow');
 const Courier = require('./Courier.js');
+
 
 const defaultSettings = {
   pool: true,
@@ -11,17 +13,19 @@ const defaultSettings = {
   uri: 'api.vndb.org',
   port: 19534,
   encoding: 'utf8',
-  parse: true
+  parse: true,
+  queryLimit: 20,
+  queryInterval: 60000
 };
 
 /**
 * Represents the main vndbjs client
 * @class
 * @prop {Object} options Vndbjs config settings
-* @prop {Object} connectionPool The connection pool
+* @prop {RateLimiter} limiter A ratelimiter responsible for preventing vndbjs from overloading VNDB
+* @prop {Pool} connectionPool The connection pool
 **/
 class Vndb {
-
   /**
   * Create a client
   * @constructor
@@ -35,10 +39,13 @@ class Vndb {
   * @param {number} [options.port=19534] The port number of VNDB's database server
   * @param {string} [options.encoding='utf8'] The encoding standard used by all sockets
   * @param {boolean} [options.parse=true] Whether the sockets should clean VNDB's responses before returning
+  * @param {number} [options.queryLimit=20] The number of queries vndbjs will perform every [queryLimit] milliseconds
+  * @param {number|string} [options.queryInterval=60000] The number of milliseconds during which [queryLimit] queries can be performed.  String values may be 'second', 'minute', 'hour', or 'day'
   */
   constructor(options) {
     defaults(options, defaultSettings);
     this.options = options;
+    this.limiter = new RateLimiter(options.queryLimit, options.queryInterval);
     if (this.options.pool === true) {
       this.connectionPool = genericPool.createPool({
         create: () => {
@@ -78,24 +85,29 @@ class Vndb {
   */
   query(message) {
     return new Promise((resolve, reject) => {
-      if (this.options.pool === true) {
-        const connection = this.connectionPool.acquire();
-        connection.then((client) => {
-          client.awaitResponse(message).then((response) => {
-            this.connectionPool.release(client);
-            resolve(response);
-          }, (error) => {
-            this.connectionPool.release(client);
-            reject(error);
-          });
-        });
-      } else {
-        const client = new Courier(this.options.parse);
-        client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
-          client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
+      this.limiter.removeTokens(1, () => {
+        if (this.options.pool === true) {
+          const connection = this.connectionPool.acquire();
+          connection.then((client) => {
             client.awaitResponse(message).then((response) => {
-              client.destroy();
+              this.connectionPool.release(client);
               resolve(response);
+            }, (error) => {
+              this.connectionPool.release(client);
+              reject(error);
+            });
+          });
+        } else {
+          const client = new Courier(this.options.parse);
+          client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
+            client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
+              client.awaitResponse(message).then((response) => {
+                client.destroy();
+                resolve(response);
+              }, (err) => {
+                client.destroy();
+                reject(err);
+              });
             }, (err) => {
               client.destroy();
               reject(err);
@@ -104,11 +116,8 @@ class Vndb {
             client.destroy();
             reject(err);
           });
-        }, (err) => {
-          client.destroy();
-          reject(err);
-        });
-      }
+        }
+      });
     });
   }
 
@@ -118,29 +127,31 @@ class Vndb {
   */
   stats() {
     return new Promise((resolve, reject) => {
-      if (this.options.pool === true) {
-        this.query('dbstats').then((response) => {
-          resolve(response);
-        }, (error) => {
-          reject(error);
-        });
-      } else {
-        const client = new Courier(this.options.parse);
-        client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
-          client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
-            client.awaitResponse('dbstats').then((response) => {
-              client.destroy();
-              resolve(response);
+      this.limiter.removeTokens(1, () => {
+        if (this.options.pool === true) {
+          this.query('dbstats').then((response) => {
+            resolve(response);
+          }, (error) => {
+            reject(error);
+          });
+        } else {
+          const client = new Courier(this.options.parse);
+          client.contact(this.options.uri, this.options.port, this.options.encoding).then(() => {
+            client.register(`${this.options.clientName}-${shortid.generate()}`).then(() => {
+              client.awaitResponse('dbstats').then((response) => {
+                client.destroy();
+                resolve(response);
+              }).catch((err) => {
+                reject(err);
+              });
             }).catch((err) => {
               reject(err);
             });
           }).catch((err) => {
             reject(err);
           });
-        }).catch((err) => {
-          reject(err);
-        });
-      }
+        }
+      });
     });
   }
 }

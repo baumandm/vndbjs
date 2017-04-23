@@ -13,12 +13,39 @@ To use vndbjs, you must first require and instantiate it.
 ```js
 const Vndb = require('vndbjs');
 
-const vndb = new Vndb({
-  clientName: 'Demovndbjs'
-});
+const options = {
+  clientName: 'vndbjsDemo'
+}
+
+const vndb = new Vndb(options);
 ```
 
 You may now use the functions `vndb` provides.  
+
+```js
+vndb.query('get vn basic (id = 17)').then((response) => {
+  console.log('response');
+
+  //  { 
+  //    status: 'results',
+  //    more: false,
+  //    num: 1,
+  //    items: [ {
+  //      id: 17,
+  //      link: 'https://vndb.org/v17',
+  //      title: 'Ever17 -The Out of Infinity-',
+  //      original: null,
+  //      released: '2002-08-29',
+  //      languages: [Object],
+  //      orig_lang: [Object],
+  //      platforms: [Object]
+  //    } ] 
+  //  }
+
+}, (err) => {
+  console.log(error);
+});
+```
 
 # Configuration
 
@@ -32,11 +59,13 @@ options = {
   uri: 'api.vndb.org',
   port: 19534,
   encoding: 'utf8',
-  parse: true
+  parse: true,
+  queryLimit: 20,
+  queryInterval: 60000
 }
 ```
 
-You have undoubtedly noticed that Vndb takes a config object when you instantiate it.  Lets go over the options.
+Vndbjs takes a config object when you instantiate it.  Lets go over the options.
 
 ## options.clientName
 
@@ -73,3 +102,7 @@ This configures the encoding setting of the socket connection.  `utf8` is curren
 ## options.parse
 
 This option will configure vndbjs to parse the results that VNDB.org provides and make seamless improvements to the data.  See later sections of the tutorials for examples of the changes
+
+## options.queryLimit and options.queryInterval
+
+Vndbjs will allow [queryLimit] requests within [queryInterval] time.  This is set by default to 20 requests per minute, which maintains a ratio with VNDB's specification of 200 requests per 10 minutes.  Changes made to these settings should take care to not allow too many requests, as being throttled by VNDB may produce undesireable results.
