@@ -1,6 +1,6 @@
 {
   "name": "vndbjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A node.js library for the Visual Novel Database.",
   "main": "/src/Vndb.js",
   "scripts": {
@@ -10,9 +10,16 @@
     "lint": "./node_modules/.bin/eslint src/",
     "cover": "node_modules/.bin/istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
   },
+  "files": [
+    "package.json",
+    "readme.md",
+    "license",
+    "contributing.md",
+    "/src"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/arbauman/vndbjs.git"
+    "url": "https://arbauman@gitlab.com/arbauman/vndbjs.git"
   },
   "keywords": [
     "vndb",
