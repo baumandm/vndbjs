@@ -13,18 +13,47 @@ A Node.js library for accessing the Visual Novel Database.
 
 # Features
 
-* Automatically connects and registers
-* Supports all query types: vn, release, producer, character, user, votelist, vnlist, and wishlist
-* Optional Pooling mode
+* All query types: vn, release, producer, character, staff, user, votelist, vnlist, and wishlist
+* TLS-secure connections and user login
+* `dbstats`, `get`, and `set` commands
+* Configurable ratelimiting
+* Automatic connection pooling
   * Automatically allocates connections to incoming requests
   * Reuses connections multiple times
   * Maintains a configurable number of connections at all times
-  * Roughly 3x faster than the pool-less mode
-* Optional Parsing mode
-  * Replaces many pieces of VNDB's data with more usable replacements
-  * Includes splitting alias strings, converting language and platform codes, and more
-  * Works on all query types
-* Configurable ratelimiting
+  * Enables low overhead for commands, reducing latancy
+* Data Cleaning
+
+## Connection Pooling
+
+Vndbjs will automatically create a pool of connections to VNDB, allowing you to maintain long-lived connections so that your commands can be sent at a moments notice.
+
+## Cleaning
+
+Vndbjs returns Javascript class instances for each query result.  These instances include getter methods that return cleaned versions of its own data, giving you access to both the raw and enhanced versions freely.
+
+### Raw
+
+```js
+Vn {
+  released: '2003-02-28',
+  languages: [ 'en', 'ja', 'zh' ],
+  platforms: [ 'win', 'ps3', 'psv', 'xb3' ],
+  aliases: 'MUV-LUV Save in the name of true love',
+  length: 4
+}
+```
+
+### Cleaned
+```js
+{
+  released: { year: '2003', month: '02', day: '28' },
+  languages: [ 'English', 'Japanese', 'Chinese' ],
+  platforms: [ 'Windows', 'Playstation 3', 'Playstation Vita', 'Xbox 360' ],
+  aliases: [ 'MUV-LUV Save in the name of true love' ],
+  length: 'Long'
+}
+```
 
 # Installation
 **Node v6.0.0 or newer**

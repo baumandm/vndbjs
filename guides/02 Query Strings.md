@@ -1,6 +1,11 @@
 ***Note***:*VNDB's API is beyond the control of this libary, and may change.  Be sure to consult the [Official Documentation](https://vndb.org/d11) if you have any issues.*
 
-To get information from VNDB, you must use the `.query()` function.  This function takes one argument: a VNDB-compatible query string.  The format for this string can be broken into 5 parts.
+To get information from VNDB, you must use the `.send()` function.  This function takes one argument: a VNDB-compatible command string.  There are two kinds of commands: `get` and `set`.
+
+## Get
+[See https://vndb.org/d11#5](https://vndb.org/d11#5)
+
+The `get` command can be broken into 5 parts:
 
 ```md
 get [type] [flags] [filters] [options]\x04
@@ -9,7 +14,7 @@ get [type] [flags] [filters] [options]\x04
 For example:
 
 ```js
-get vn basic,details,stats (search ~ "Muv Luv") { "sort": "rating", "reverse": true }
+get vn basic,details,stats (search ~ "Muv Luv") { "sort": "rating", "reverse": true }\x04
 ```
 
 ### Type
@@ -20,10 +25,11 @@ Type indicates what sort of data you wish to recieve. Currently the types are:
 2. release
 3. producer
 4. character
-5. user
-6. votelist
-7. vnlist
-8. wishlist
+5. staff
+6. user
+7. votelist
+8. vnlist
+9. wishlist
 
 ### Flags
 
@@ -62,3 +68,33 @@ This is a boolean, which simply reverses the order of the results.  Setting to t
 ### \x04
 
 All messages to and from VNDB end in this end-of-line character, represented as `\x04`.  Vndbjs automatically adds this to the end of all sent messages, and removes it from all returned messages.  There is no need for you to affix this to the end of your query strings.
+
+## Set
+[See https://vndb.org/d11#6](https://vndb.org/d11#6)
+
+The `set` command can be broken into 4 parts.
+
+```md
+set [type] [id] [fields]\x04
+```
+
+For example:
+
+```js
+set votelist 17 {"vote":100}
+```
+### Type
+
+Type indicates what sort of data you wish to set. Currently the settable types are:
+
+1. votelist
+2. vnlist
+3. wishlist
+
+### ID
+
+This is any Visual Novel ID
+
+### Fields
+
+This is a sequence of stringified JSON.  Each Type has different fields that can be set.  Consult [VNDB d11#6.1](https://vndb.org/d11#6.1) for more details.

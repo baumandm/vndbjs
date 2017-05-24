@@ -6,10 +6,9 @@
 * @prop {Object} languages VNDB language codes
 * @prop {Object} vnRelations VNDB relation codes between VNs
 * @prop {Object} proRelations VNDB relation codes between Producers
-* @prop {Object} releaseType VNDB release type codes
 * @prop {Object} producerType VNDB producer type codes
 * @prop {Object} media VNDB release media codes
-* @prop {Object} characterGender VNDB character gender codes
+* @prop {Object} gender VNDB gender codes
 * @prop {Array} listStatus VNDB User VNlist codes
 * @prop {Array} priority VNDB User Wishlist codes
 **/
@@ -77,11 +76,6 @@ module.exports = {
     sub: 'Subsidiary',
     imp: 'Imprint'
   },
-  releaseType: {
-    complete: 'Complete',
-    partial: 'Partial',
-    trial: 'Trial'
-  },
   producerType: {
     co: 'Company',
     ng: 'Amateur Group',
@@ -93,7 +87,7 @@ module.exports = {
     cd: 'CD',
     in: 'Internet Download'
   },
-  characterGender: {
+  gender: {
     m: 'Male',
     f: 'Female',
     b: 'Both'
