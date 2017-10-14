@@ -28,7 +28,7 @@ class Connection extends GenericConnection {
   **/
   connect(encoding) {
     return new Promise((resolve, reject) => {
-      this.socket.once('error', () => reject('error'));
+      this.socket.once('error', () => reject(new Error('error')));
       this.socket.on('connect', () => {
         this.socket.setEncoding(encoding);
         this.socket.removeAllListeners('error');

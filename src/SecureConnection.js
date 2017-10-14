@@ -35,7 +35,7 @@ class SecureConnection extends GenericConnection {
           this.socket.setEncoding(encoding);
           resolve('ok');
         } else {
-          reject('error');
+          reject(new Error('error'));
         }
       });
     });

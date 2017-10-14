@@ -145,16 +145,16 @@ class Character {
 
     if (this.description !== null) {
       results.description.text = this.description
-      .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
-      .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
-      .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
-      .replace(/\n+/g, '\n');
-      const spoilers = this.description.match(/\[spoiler\](.+)\[\/spoiler\]/i);
-      if (spoilers !== null) {
-        results.description.spoilers = spoilers[1]
+        .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
         .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
         .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
         .replace(/\n+/g, '\n');
+      const spoilers = this.description.match(/\[spoiler\](.+)\[\/spoiler\]/i);
+      if (spoilers !== null) {
+        results.description.spoilers = spoilers[1]
+          .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
+          .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
+          .replace(/\n+/g, '\n');
       } else {
         results.description.spoilers = '';
       }

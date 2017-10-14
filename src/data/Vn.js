@@ -212,16 +212,16 @@ class Vn {
     if (this.description !== null) {
       results.description = {};
       results.description.text = this.description
-      .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
-      .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
-      .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
-      .replace(/\n+/g, '\n');
-      const spoilers = this.description.match(/\[spoiler\](.+)\[\/spoiler\]/i);
-      if (spoilers !== null) {
-        results.description.spoilers = spoilers[1]
+        .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
         .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
         .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
         .replace(/\n+/g, '\n');
+      const spoilers = this.description.match(/\[spoiler\](.+)\[\/spoiler\]/i);
+      if (spoilers !== null) {
+        results.description.spoilers = spoilers[1]
+          .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
+          .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
+          .replace(/\n+/g, '\n');
       } else {
         results.description.spoilers = '';
       }
@@ -229,16 +229,16 @@ class Vn {
 
     if (this.links !== null) {
       results.links.wikipedia = this.links.wikipedia !== null
-      ? `http://en.wikipedia.org/wiki/${this.links.wikipedia}`
-      : null;
+        ? `http://en.wikipedia.org/wiki/${this.links.wikipedia}`
+        : null;
 
       results.links.renai = this.links.renai !== null
-      ? `http://renai.us/game/${this.links.renai}`
-      : null;
+        ? `http://renai.us/game/${this.links.renai}`
+        : null;
 
       results.links.encubed = this.links.encubed !== null
-      ? `http://novelnews.net/tag/${this.links.encubed}/`
-      : null;
+        ? `http://novelnews.net/tag/${this.links.encubed}/`
+        : null;
     }
 
     if (this.relations !== null) {

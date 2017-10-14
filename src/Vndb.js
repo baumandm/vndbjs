@@ -1,6 +1,6 @@
 const genericPool = require('generic-pool');
 const shortid = require('shortid');
-const RateLimiter = require('limiter').RateLimiter;
+const { RateLimiter } = require('limiter');
 const defaults = require('defaults-shallow');
 const Connection = require('./Connection.js');
 const SecureConnection = require('./SecureConnection.js');

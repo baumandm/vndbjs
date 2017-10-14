@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: "off" */
-const version = require('../package.json').version;
+const { version } = require('../package.json');
 const Vn = require('./data/Vn.js');
 const Release = require('./data/Release.js');
 const Producer = require('./data/Producer.js');

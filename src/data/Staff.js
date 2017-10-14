@@ -116,26 +116,26 @@ class Staff {
     }
 
     results.links.homepage = this.links.homepage !== null
-    ? this.links.homepage
-    : null;
+      ? this.links.homepage
+      : null;
 
     results.links.wikipedia = this.links.wikipedia !== null
-    ? `http://en.wikipedia.org/wiki/${this.links.wikipedia}`
-    : null;
+      ? `http://en.wikipedia.org/wiki/${this.links.wikipedia}`
+      : null;
 
     results.links.twitter = this.links.twitter !== null
-    ? `https://twitter.com/${this.links.twitter}`
-    : null;
+      ? `https://twitter.com/${this.links.twitter}`
+      : null;
 
     results.links.anidb = this.links.anidb !== null
-    ? `http://anidb.net/perl-bin/animedb.pl?show=creator&creatorid=${this.links.anidb}`
-    : null;
+      ? `http://anidb.net/perl-bin/animedb.pl?show=creator&creatorid=${this.links.anidb}`
+      : null;
 
     if (this.description !== null) {
       results.description = this.description
-      .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
-      .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
-      .replace(/\n+/g, '\n'); // removes excessive newlines
+        .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
+        .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
+        .replace(/\n+/g, '\n'); // removes excessive newlines
     }
 
     if (this.vns !== null) {

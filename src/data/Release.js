@@ -146,16 +146,16 @@ class Release {
     if (this.notes !== null) {
       results.notes = {};
       results.notes.text = this.notes
-      .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
-      .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
-      .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
-      .replace(/\n+/g, '\n');
-      const spoilers = this.notes.match(/\[spoiler\](.+)\[\/spoiler\]/i);
-      if (spoilers !== null) {
-        results.notes.spoilers = spoilers[1]
+        .replace(/\[spoiler\].+\[\/spoiler\]/gi, '')
         .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
         .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
         .replace(/\n+/g, '\n');
+      const spoilers = this.notes.match(/\[spoiler\](.+)\[\/spoiler\]/i);
+      if (spoilers !== null) {
+        results.notes.spoilers = spoilers[1]
+          .replace(/\[url.+?\]|\[\/url\]|\[|\]/g, '') // remove bbcode links
+          .replace(/^\s+|\s+$/g, '') // removes excess whitespace at beginning or end
+          .replace(/\n+/g, '\n');
       } else {
         results.notes.spoilers = '';
       }
